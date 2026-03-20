@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "SurgerySchedule": {
+      "title": "Surgery Schedule",
+      "description": "A scheduled surgery for a patient",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string" },
+        "room": { "type": "string" },
+        "doctor": { "type": "string" },
+        "patientName": { "type": "string" },
+        "patientHN": { "type": "string" },
+        "patientAge": { "type": "string" },
+        "procedure": { "type": "string" },
+        "surgeryType": { "type": "string", "enum": ["Minor", "Major"] },
+        "department": { "type": "string" },
+        "status": { "type": "string", "enum": ["preparing", "surgery", "recovery", "completed", "canceled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date", "time", "room", "doctor", "patientName", "patientHN", "procedure", "surgeryType", "department"]
+    },
+    "DoctorSchedule": {
+      "title": "Doctor Schedule",
+      "description": "A doctor's weekly schedule and exclusions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "clinic": { "type": "string" },
+        "schedule": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "day": { "type": "integer", "description": "0-6 for Sun-Sat" },
+              "time": { "type": "string" }
+            }
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": { "type": "string", "format": "date" }
+        }
+      },
+      "required": ["name", "clinic", "schedule"]
+    }
+  },
+  "firestore": {
+    "surgery_schedules": {
+      "schema": "SurgerySchedule",
+      "description": "Collection of surgery schedules"
+    },
+    "doctor_schedules": {
+      "schema": "DoctorSchedule",
+      "description": "Collection of doctor schedules"
+    }
+  }
+}
