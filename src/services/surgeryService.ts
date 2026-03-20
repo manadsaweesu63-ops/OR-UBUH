@@ -16,36 +16,7 @@ export interface SurgerySchedule {
 
 const STORAGE_KEY = 'surgery_schedule_data';
 
-const DEFAULT_SCHEDULE: SurgerySchedule[] = [
-  { 
-    id: '1', 
-    date: '2026-03-20', 
-    time: '13:00', 
-    room: 'Minor 1', 
-    doctor: 'อ.นพ. ดิน ตังคโณบล', 
-    patientName: 'นางวิมลศรี มณีกาญจน์', 
-    patientHN: '88962',
-    patientAge: '65',
-    procedure: 'Upper blepharoplasty', 
-    surgeryType: 'Minor',
-    department: 'Plastic Surgery',
-    status: 'preparing'
-  },
-  { 
-    id: '2', 
-    date: '2026-03-20', 
-    time: '09:00', 
-    room: 'Minor 1', 
-    doctor: 'อ.นพ. ดิน ตังคโณบล', 
-    patientName: 'นางจันจิรา ฉลาดล้ำ', 
-    patientHN: '95773',
-    patientAge: '61',
-    procedure: 'Upper blepharoplasty', 
-    surgeryType: 'Minor',
-    department: 'Plastic Surgery',
-    status: 'surgery'
-  },
-];
+const DEFAULT_SCHEDULE: SurgerySchedule[] = [];
 
 /**
  * Helper to call Google Apps Script functions

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OR UBUH - Surgery Schedule System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <!-- Date-fns -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.30.0/index.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #fdfcfb;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, useCallback, useMemo } = React;
+        const { motion, AnimatePresence } = FramerMotion;
+
+        // --- Constants & Config ---
+        const DOCTORS = [
+            "อ.นพ. ดิน ตังคโณบล",
+            "อ.นพ. ภาณุวัตร สุธรรมวงศ์",
+            "อ.นพ. วัฒนา พรรณพานิช",
+            "อ.นพ. เกริก สุวรรณกาฬ",
+            "อ.นพ. สิทธิชัย ทองแสง",
+            "อ.พญ. นวรัตน์ เกียรติอรุณ"
+        ];
+
+        const ROOMS = ["Minor 1", "Minor 2", "Major 1"];
+        const SURGERY_TYPES = ["Minor", "Major"];
+        const DEPARTMENTS = [
+            "Plastic Surgery",
+            "General Surgery",
+            "Orthopedic",
+            "Urology",
+            "ENT",
+            "Ophthalmology"
+        ];
+
+        const STATUS_CONFIG = {
+            preparing: { label: 'กำลังเตรียมการ', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: 'Clock' },
+            surgery: { label: 'กำลังผ่าตัด', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: 'Activity' },
+            recovery: { label: 'ห้องพักฟื้น', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: 'Heart' },
+            completed: { label: 'เสร็จสิ้น', color: 'bg-slate-50 text-slate-600 border-slate-100', icon: 'CheckCircle2' },
+            canceled: { label: 'ยกเลิก', color: 'bg-rose-50 text-rose-600 border-rose-100', icon: 'XCircle' }
+        };
+
+        const DOCTOR_STYLES = {
+            "อ.นพ. ดิน ตังคโณบล": { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", bar: "bg-blue-500", shadow: "shadow-blue-100" },
+            "อ.นพ. ภาณุวัตร สุธรรมวงศ์": { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", shadow: "shadow-emerald-100" },
+            "อ.นพ. วัฒนา พรรณพานิช": { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", bar: "bg-amber-500", shadow: "shadow-amber-100" },
+            "อ.นพ. เกริก สุวรรณกาฬ": { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", bar: "bg-rose-500", shadow: "shadow-rose-100" },
+            "อ.นพ. สิทธิชัย ทองแสง": { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200", bar: "bg-indigo-500", shadow: "shadow-indigo-100" },
+            "อ.พญ. นวรัตน์ เกียรติอรุณ": { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", bar: "bg-purple-500", shadow: "shadow-purple-100" }
+        };
+
+        // --- GAS Service Wrapper ---
+        const callGAS = (functionName, ...args) => {
+            return new Promise((resolve, reject) => {
+                if (typeof google !== 'undefined' && google.script && google.script.run) {
+                    google.script.run
+                        .withSuccessHandler(resolve)
+                        .withFailureHandler(reject)
+                        [functionName](...args);
+                } else {
+                    // Local development fallback
+                    console.warn('GAS environment not found, using localStorage');
+                    const mockData = JSON.parse(localStorage.getItem('surgery_data') || '[]');
+                    if (functionName === 'getSurgerySchedule') resolve(mockData);
+                    else if (functionName === 'addSurgerySchedule') {
+                        const newItem = { ...args[0], id: Math.random().toString(36).substr(2, 9) };
+                        localStorage.setItem('surgery_data', JSON.stringify([...mockData, newItem]));
+                        resolve(newItem);
+                    }
+                    else if (functionName === 'updateSurgerySchedule') {
+                        const updated = mockData.map(item => item.id === args[0] ? { ...item, ...args[1] } : item);
+                        localStorage.setItem('surgery_data', JSON.stringify(updated));
+                        resolve(updated);
+                    }
+                    else if (functionName === 'deleteSurgerySchedule') {
+                        const filtered = mockData.filter(item => item.id !== args[0]);
+                        localStorage.setItem('surgery_data', JSON.stringify(filtered));
+                        resolve(filtered);
+                    }
+                }
+            });
+        };
+
+        // --- Components ---
+
+        const Icon = ({ name, className }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const App = () => {
+            const [view, setView] = useState('home');
+            const [isStaff, setIsStaff] = useState(localStorage.getItem('isStaff') === 'true');
+            const [schedule, setSchedule] = useState([]);
+            const [loading, setLoading] = useState(false);
+
+            const fetchData = useCallback(async () => {
+                setLoading(true);
+                try {
+                    const data = await callGAS('getSurgerySchedule');
+                    setSchedule(data);
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setLoading(false);
+                }
+            }, []);
+
+            useEffect(() => {
+                fetchData();
+            }, [fetchData]);
+
+            const handleLogin = (password) => {
+                if (password === 'or1234') {
+                    localStorage.setItem('isStaff', 'true');
+                    setIsStaff(true);
+                    setView('admin-menu');
+                    return true;
+                }
+                return false;
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('isStaff');
+                setIsStaff(false);
+                setView('home');
+            };
+
+            return (
+                <div className="min-h-screen">
+                    {view === 'home' && <Home setView={setView} isStaff={isStaff} />}
+                    {view === 'login' && <Login onLogin={handleLogin} setView={setView} />}
+                    {view === 'admin-menu' && <AdminMenu setView={setView} onLogout={handleLogout} />}
+                    {view === 'status' && <StatusView setView={setView} isStaff={isStaff} schedule={schedule} onUpdate={fetchData} />}
+                    {view === 'schedule' && <ScheduleView setView={setView} isStaff={isStaff} schedule={schedule} onUpdate={fetchData} />}
+                    {view === 'entry' && <EntryForm setView={setView} onUpdate={fetchData} />}
+                </div>
+            );
+        };
+
+        const Home = ({ setView, isStaff }) => (
+            <div className="min-h-screen bg-emerald-50/40">
+                <nav className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+                    <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white font-bold">OR</div>
+                            <span className="font-bold text-slate-900">OR UBUH</span>
+                        </div>
+                        <button 
+                            onClick={() => isStaff ? setView('admin-menu') : setView('login')}
+                            className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all text-sm font-medium"
+                        >
+                            <Icon name={isStaff ? "shield-check" : "user-lock"} className="w-4 h-4" />
+                            <span>{isStaff ? "ระบบเจ้าหน้าที่" : "สำหรับเจ้าหน้าที่"}</span>
+                        </button>
+                    </div>
+                </nav>
+
+                <section className="relative overflow-hidden bg-white/60 pt-20 pb-24 border-b border-emerald-100/50">
+                    <div className="max-w-5xl mx-auto px-4 text-center">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                            <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
+                                กลุ่มงานห้องผ่าตัดและวิสัญญี <br />
+                                <span className="text-emerald-600">โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</span>
+                            </h1>
+                            <p className="text-slate-500 max-w-2xl mx-auto">มุ่งเน้นความเป็นเลิศด้านศัลยกรรมและการระงับความรู้สึก ด้วยมาตรฐานความปลอดภัยระดับสากล</p>
+                        </motion.div>
+                    </div>
+                </section>
+
+                <section className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <MenuCard title="ตารางผ่าตัด" desc="ตรวจสอบวันและเวลาผ่าตัด" icon="calendar" color="bg-indigo-500" onClick={() => setView('schedule')} />
+                    <MenuCard title="ติดตามสถานะ" desc="ตรวจสอบสถานะการผ่าตัดแบบเรียลไทม์" icon="activity" color="bg-emerald-500" onClick={() => setView('status')} />
+                    <MenuCard title="ข่าวประชาสัมพันธ์" desc="ประกาศและข่าวสารล่าสุด" icon="megaphone" color="bg-amber-500" onClick={() => {}} />
+                </section>
+            </div>
+        );
+
+        const MenuCard = ({ title, desc, icon, color, onClick }) => (
+            <motion.button 
+                whileHover={{ y: -5 }}
+                onClick={onClick}
+                className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-left hover:shadow-xl transition-all flex flex-col h-full"
+            >
+                <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg`}>
+                    <Icon name={icon} className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                <p className="text-slate-500 text-sm">{desc}</p>
+            </motion.button>
+        );
+
+        const Login = ({ onLogin, setView }) => {
+            const [pass, setPass] = useState('');
+            const [error, setError] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (onLogin(pass)) {
+                    // success
+                } else {
+                    setError(true);
+                    setTimeout(() => setError(false), 2000);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 text-center relative">
+                        <button onClick={() => setView('home')} className="absolute top-8 left-8 text-slate-400 hover:text-slate-600">
+                            <Icon name="arrow-left" className="w-6 h-6" />
+                        </button>
+                        <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                            <Icon name="lock" className="w-10 h-10 text-blue-600" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-8">เข้าสู่ระบบเจ้าหน้าที่</h1>
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <input 
+                                type="password" 
+                                value={pass} 
+                                onChange={e => setPass(e.target.value)}
+                                placeholder="รหัสผ่าน"
+                                className={`w-full px-6 py-4 bg-slate-50 rounded-2xl border ${error ? 'border-rose-500 ring-2 ring-rose-500/10' : 'border-slate-200'} text-center text-xl tracking-widest outline-none`}
+                                autoFocus
+                            />
+                            {error && <p className="text-rose-500 text-sm">รหัสผ่านไม่ถูกต้อง</p>}
+                            <button type="submit" className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all">ยืนยันตัวตน</button>
+                        </form>
+                    </motion.div>
+                </div>
+            );
+        };
+
+        const AdminMenu = ({ setView, onLogout }) => (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl p-10 text-center relative">
+                    <button onClick={() => setView('home')} className="absolute top-8 left-8 text-slate-400 hover:text-slate-600">
+                        <Icon name="arrow-left" className="w-6 h-6" />
+                    </button>
+                    <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                        <Icon name="shield-check" className="w-10 h-10 text-emerald-600" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-slate-900 mb-8">เมนูเจ้าหน้าที่</h1>
+                    <div className="space-y-4">
+                        <button onClick={() => setView('entry')} className="w-full p-6 bg-emerald-50 rounded-3xl border border-emerald-100 hover:bg-emerald-100 transition-all text-left flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm"><Icon name="plus" className="w-6 h-6" /></div>
+                            <div><div className="font-bold text-slate-900">ลงข้อมูลผู้ป่วยผ่าตัด</div><div className="text-sm text-slate-500">เพิ่มรายการผ่าตัดใหม่</div></div>
+                        </button>
+                        <button onClick={() => setView('schedule')} className="w-full p-6 bg-blue-50 rounded-3xl border border-blue-100 hover:bg-blue-100 transition-all text-left flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm"><Icon name="calendar" className="w-6 h-6" /></div>
+                            <div><div className="font-bold text-slate-900">ตารางวันผ่าตัด</div><div className="text-sm text-slate-500">จัดการรายการผ่าตัด</div></div>
+                        </button>
+                        <button onClick={() => setView('status')} className="w-full p-6 bg-amber-50 rounded-3xl border border-amber-100 hover:bg-amber-100 transition-all text-left flex items-center gap-4">
+                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-amber-600 shadow-sm"><Icon name="activity" className="w-6 h-6" /></div>
+                            <div><div className="font-bold text-slate-900">สถานะห้องผ่าตัด</div><div className="text-sm text-slate-500">อัปเดตสถานะ Real-time</div></div>
+                        </button>
+                        <button onClick={onLogout} className="w-full py-4 text-rose-500 font-bold hover:bg-rose-50 rounded-2xl transition-all mt-4">ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const StatusView = ({ setView, isStaff, schedule, onUpdate }) => {
+            const [hn, setHn] = useState('');
+            const [verified, setVerified] = useState(false);
+            const [error, setError] = useState('');
+
+            const filtered = schedule.filter(item => {
+                if (isStaff) return true;
+                return item.patientHN === hn;
+            });
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                if (schedule.some(i => i.patientHN === hn)) {
+                    setVerified(true);
+                    setError('');
+                } else {
+                    setError('ไม่พบข้อมูลสำหรับ HN นี้');
+                }
+            };
+
+            const updateStatus = async (id, newStatus) => {
+                await callGAS('updateSurgerySchedule', id, { status: newStatus });
+                onUpdate();
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 py-8 px-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="flex items-center justify-between mb-8">
+                            <button onClick={() => setView(isStaff ? 'admin-menu' : 'home')} className="flex items-center gap-2 text-slate-500 hover:text-blue-600">
+                                <Icon name="arrow-left" className="w-5 h-5" /> กลับ
+                            </button>
+                            <h1 className="text-2xl font-bold">สถานะห้องผ่าตัด</h1>
+                        </div>
+
+                        {!isStaff && !verified ? (
+                            <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center max-w-md mx-auto">
+                                <Icon name="search" className="w-12 h-12 text-blue-500 mx-auto mb-6" />
+                                <h2 className="text-xl font-bold mb-4">ระบุหมายเลข HN</h2>
+                                <form onSubmit={handleSearch} className="space-y-4">
+                                    <input 
+                                        type="text" 
+                                        value={hn} 
+                                        onChange={e => setHn(e.target.value)}
+                                        placeholder="หมายเลข HN"
+                                        className="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-200 text-center text-xl font-bold outline-none"
+                                    />
+                                    {error && <p className="text-rose-500 text-sm">{error}</p>}
+                                    <button type="submit" className="w-full py-4 bg-blue-600 text-white font-bold rounded-2xl">ตรวจสอบสถานะ</button>
+                                </form>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {filtered.length === 0 ? (
+                                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                                        <p className="text-slate-400">ไม่มีข้อมูลการผ่าตัดในขณะนี้</p>
+                                    </div>
+                                ) : (
+                                    filtered.map(item => (
+                                        <div key={item.id} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                                            <div className="flex flex-col md:flex-row justify-between gap-4">
+                                                <div className="flex gap-4">
+                                                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+                                                        <Icon name="user" className="w-6 h-6" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-bold text-slate-400">HN: {isStaff ? item.patientHN : item.patientHN.substring(0,2) + 'XXXX'}</div>
+                                                        <div className="text-lg font-bold">{isStaff ? item.patientName : item.patientName.split(' ')[0][0] + '...'}</div>
+                                                        <div className="text-slate-500 text-sm">{item.procedure}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <div className={`px-4 py-1.5 rounded-full text-sm font-bold border ${STATUS_CONFIG[item.status || 'preparing'].color}`}>
+                                                        {STATUS_CONFIG[item.status || 'preparing'].label}
+                                                    </div>
+                                                    <div className="text-xs text-slate-400">เริ่ม {item.time} น.</div>
+                                                </div>
+                                            </div>
+                                            {isStaff && (
+                                                <div className="mt-6 pt-6 border-t border-slate-50 flex flex-wrap gap-2">
+                                                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                                                        <button 
+                                                            key={key}
+                                                            onClick={() => updateStatus(item.id, key)}
+                                                            className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all ${item.status === key ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}
+                                                        >
+                                                            {cfg.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const ScheduleView = ({ setView, isStaff, schedule, onUpdate }) => {
+            const [filter, setFilter] = useState('all');
+            
+            const filtered = schedule.filter(item => filter === 'all' || item.doctor === filter);
+
+            const handleDelete = async (id) => {
+                if (confirm('ยืนยันการลบรายการนี้?')) {
+                    await callGAS('deleteSurgerySchedule', id);
+                    onUpdate();
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 py-8 px-4">
+                    <div className="max-w-5xl mx-auto">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                            <div>
+                                <button onClick={() => setView(isStaff ? 'admin-menu' : 'home')} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-2">
+                                    <Icon name="arrow-left" className="w-5 h-5" /> กลับ
+                                </button>
+                                <h1 className="text-3xl font-bold">ตารางผ่าตัด</h1>
+                            </div>
+                            <select 
+                                value={filter} 
+                                onChange={e => setFilter(e.target.value)}
+                                className="px-4 py-3 bg-white rounded-2xl border border-slate-200 font-bold outline-none shadow-sm"
+                            >
+                                <option value="all">แพทย์ทุกคน</option>
+                                {DOCTORS.map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="space-y-4">
+                            {filtered.length === 0 ? (
+                                <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                                    <p className="text-slate-400">ไม่มีรายการผ่าตัด</p>
+                                </div>
+                            ) : (
+                                filtered.map(item => (
+                                    <div key={item.id} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between gap-6 group">
+                                        <div className="flex gap-6">
+                                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex flex-col items-center justify-center text-blue-600 shrink-0">
+                                                <div className="text-xs font-bold uppercase">{item.time}</div>
+                                                <Icon name="clock" className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <div className="flex flex-wrap gap-2 mb-2">
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${item.surgeryType === 'Major' ? 'bg-rose-100 text-rose-600' : 'bg-blue-100 text-blue-600'}`}>{item.surgeryType}</span>
+                                                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold">{item.room}</span>
+                                                </div>
+                                                <h3 className="text-xl font-bold text-slate-800 mb-1">{item.procedure}</h3>
+                                                <p className="text-slate-500 font-bold text-sm">HN: {item.patientHN} | {item.patientName} (อายุ {item.patientAge} ปี)</p>
+                                                <p className="text-emerald-600 text-xs font-bold mt-2"><Icon name="user" className="w-3 h-3 inline mr-1" /> {item.doctor}</p>
+                                            </div>
+                                        </div>
+                                        {isStaff && (
+                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleDelete(item.id)} className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all">
+                                                    <Icon name="trash-2" className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const EntryForm = ({ setView, onUpdate }) => {
+            const [form, setForm] = useState({
+                patientHN: '', patientName: '', patientAge: '', procedure: '',
+                surgeryType: 'Minor', date: new Date().toISOString().split('T')[0],
+                time: '09:00', doctor: DOCTORS[0], room: ROOMS[0], department: DEPARTMENTS[0]
+            });
+            const [submitting, setSubmitting] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setSubmitting(true);
+                try {
+                    await callGAS('addSurgerySchedule', form);
+                    onUpdate();
+                    setView('schedule');
+                } catch (e) {
+                    alert('เกิดข้อผิดพลาด: ' + e.message);
+                } finally {
+                    setSubmitting(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 py-8 px-4">
+                    <div className="max-w-3xl mx-auto">
+                        <button onClick={() => setView('admin-menu')} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-8">
+                            <Icon name="arrow-left" className="w-5 h-5" /> กลับ
+                        </button>
+                        
+                        <div className="bg-white rounded-[2.5rem] shadow-xl p-8 md:p-12">
+                            <h1 className="text-3xl font-bold mb-8">ลงข้อมูลผู้ป่วยผ่าตัด</h1>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">HN</label>
+                                        <input required value={form.patientHN} onChange={e => setForm({...form, patientHN: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-emerald-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">ชื่อ-นามสกุล</label>
+                                        <input required value={form.patientName} onChange={e => setForm({...form, patientName: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-emerald-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">อายุ</label>
+                                        <input required type="number" value={form.patientAge} onChange={e => setForm({...form, patientAge: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-emerald-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">หัตถการ</label>
+                                        <input required value={form.procedure} onChange={e => setForm({...form, procedure: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-emerald-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">ประเภทการผ่าตัด</label>
+                                        <select value={form.surgeryType} onChange={e => setForm({...form, surgeryType: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none">
+                                            {SURGERY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">วันที่</label>
+                                        <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">เวลา</label>
+                                        <input type="time" value={form.time} onChange={e => setForm({...form, time: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-500">ศัลยแพทย์</label>
+                                        <select value={form.doctor} onChange={e => setForm({...form, doctor: e.target.value})} className="w-full px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 outline-none">
+                                            {DOCTORS.map(d => <option key={d} value={d}>{d}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <button disabled={submitting} type="submit" className="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all disabled:opacity-50">
+                                    {submitting ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
