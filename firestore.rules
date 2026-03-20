@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: doctors
+    // Fields:
+    //   - name: string (required)
+    //   - colorConfig: map (optional)
+    //
+    // Collection: surgeries
+    // Fields:
+    //   - date: string (required, YYYY-MM-DD)
+    //   - time: string (required)
+    //   - room: string (required)
+    //   - doctor: string (required)
+    //   - patientName: string (required)
+    //   - patientHN: string (required)
+    //   - patientAge: string (optional)
+    //   - procedure: string (required)
+    //   - surgeryType: string (required, 'Minor' | 'Major')
+    //   - department: string (required)
+    //   - status: string (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "manadsawee.su.63@ubu.ac.th" && request.auth.token.email_verified == true);
+    }
+
+    function isValidDoctor(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    function isValidSurgery(data) {
+      return data.date is string && data.date.matches("^\\d{4}-\\d{2}-\\d{2}$") &&
+             data.time is string && data.time.size() > 0 &&
+             data.room is string && data.room.size() > 0 &&
+             data.doctor is string && data.doctor.size() > 0 &&
+             data.patientName is string && data.patientName.size() > 0 &&
+             data.patientHN is string && data.patientHN.size() > 0 &&
+             data.procedure is string && data.procedure.size() > 0 &&
+             data.surgeryType in ['Minor', 'Major'] &&
+             data.department is string && data.department.size() > 0;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /doctors/{doctorId} {
+      allow read: if true; // Publicly readable for the schedule view
+      allow write: if isAdmin();
+    }
+
+    match /surgeries/{surgeryId} {
+      allow read: if true; // Publicly readable for the schedule/status board
+      allow write: if isAdmin();
+    }
+  }
+}
