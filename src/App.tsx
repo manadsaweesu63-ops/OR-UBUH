@@ -11,7 +11,6 @@ import AboutOR from './components/AboutOR';
 import SurgerySchedule from './components/SurgerySchedule';
 import SurgeryEntry from './components/SurgeryEntry';
 import DoctorSchedule from './components/DoctorSchedule';
-import DoctorScheduleEntry from './components/DoctorScheduleEntry';
 import PressRelease from './components/PressRelease';
 import MedicalArticles from './components/MedicalArticles';
 import SatisfactionSurvey from './components/SatisfactionSurvey';
@@ -28,7 +27,6 @@ export default function App() {
           <Route path="/schedule" element={<SurgerySchedule />} />
           <Route path="/surgery-entry" element={<SurgeryEntry />} />
           <Route path="/doctors" element={<DoctorSchedule />} />
-          <Route path="/doctor-entry" element={<DoctorScheduleEntry />} />
           <Route path="/pr" element={<PressRelease />} />
           <Route path="/articles" element={<MedicalArticles />} />
           <Route path="/survey" element={<SatisfactionSurvey />} />
