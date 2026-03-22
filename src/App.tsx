@@ -6,7 +6,7 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { auth } from './firebase';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import Home from './components/Home';
 import StatusBoard from './components/StatusBoard';
 import Login from './components/Login';
@@ -23,10 +23,10 @@ import FAQ from './components/FAQ';
 
 export default function App() {
   useEffect(() => {
-    // Ensure Firebase auth is initialized and staff are signed in anonymously
+    // Ensure Firebase auth is initialized
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user && localStorage.getItem('isStaff') === 'true') {
-        signInAnonymously(auth).catch(err => console.error('Auto-login error:', err));
+      if (user) {
+        localStorage.setItem('isStaff', 'true');
       }
     });
     return () => unsubscribe();

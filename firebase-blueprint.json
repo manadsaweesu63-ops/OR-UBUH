@@ -46,6 +46,18 @@
         }
       },
       "required": ["name", "clinic", "schedule"]
+    },
+    "Doctor": {
+      "title": "Doctor",
+      "description": "A doctor in the hospital",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "clinic": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "clinic"]
     }
   },
   "firestore": {
@@ -56,6 +68,10 @@
     "doctor_schedules": {
       "schema": "DoctorSchedule",
       "description": "Collection of doctor schedules"
+    },
+    "doctors": {
+      "schema": "Doctor",
+      "description": "Collection of doctors"
     }
   }
 }

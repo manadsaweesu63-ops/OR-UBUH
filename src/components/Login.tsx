@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
-import { signInAnonymously } from 'firebase/auth';
 
 export default function Login() {
   const [password, setPassword] = useState('');
@@ -17,14 +16,8 @@ export default function Login() {
     setIsLoading(true);
     // Simple mock password for demo
     if (password === 'or1234') {
-      try {
-        await signInAnonymously(auth);
-        localStorage.setItem('isStaff', 'true');
-        setIsLoggedIn(true);
-      } catch (err) {
-        console.error('Firebase Auth Error:', err);
-        setError(true);
-      }
+      localStorage.setItem('isStaff', 'true');
+      setIsLoggedIn(true);
     } else {
       setError(true);
       setTimeout(() => setError(false), 2000);

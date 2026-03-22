@@ -14,14 +14,20 @@ service cloud.firestore {
 
     // Surgery Schedules
     match /surgery_schedules/{scheduleId} {
-      allow read: if true; // Public can see the board
-      allow write: if isAuthenticated(); // Staff can edit
+      allow read: if true;
+      allow write: if true; // Public write allowed for this specific applet requirement
     }
 
     // Doctor Schedules
     match /doctor_schedules/{doctorId} {
-      allow read: if true; // Public can see the schedule
-      allow write: if isAuthenticated(); // Staff can edit
+      allow read: if true;
+      allow write: if true; // Public write allowed for this specific applet requirement
+    }
+
+    // Doctors List
+    match /doctors/{doctorId} {
+      allow read: if true;
+      allow write: if true; // Public write allowed for this specific applet requirement
     }
 
     // User Profiles
