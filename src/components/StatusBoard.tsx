@@ -7,6 +7,7 @@ import { format, isSameDay, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getSurgerySchedule, updateSurgerySchedule, subscribeToSurgerySchedule } from '../services/surgeryService';
+import StaffHeader from './StaffHeader';
 
 const getInitials = (name: string) => {
   const parts = name.split(' ');
@@ -134,25 +135,25 @@ export default function StatusBoard() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
+      {isAdminMode && <StaffHeader />}
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
         {/* Navigation Header */}
         <div className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors font-medium"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            กลับหน้าหลัก
-          </button>
+          {!isAdminMode && (
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              กลับหน้าหลัก
+            </button>
+          )}
           
           {isAdminMode ? (
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors font-bold text-sm"
-            >
-              <LogOut className="w-4 h-4" />
-              ออกจากระบบเจ้าหน้าที่
-            </button>
+            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 font-bold text-sm">
+              <ShieldCheck className="w-4 h-4" />
+              โหมดเจ้าหน้าที่
+            </div>
           ) : !isHnVerified && (
             <button 
               onClick={() => navigate('/login')}

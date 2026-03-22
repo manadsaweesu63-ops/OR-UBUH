@@ -32,6 +32,7 @@ import {
 import { th } from 'date-fns/locale';
 import { addDoctorSchedule, getDoctorSchedules, updateDoctorSchedule, deleteDoctorSchedule, DoctorSchedule, subscribeToDoctorSchedules } from '../services/doctorService';
 import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
+import StaffHeader from './StaffHeader';
 
 const CLINICS = [
   'ศัลยกรรมตกแต่ง',
@@ -214,17 +215,19 @@ export default function DoctorScheduleEntry() {
   const startDay = getDay(monthStart);
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => step === 'input' ? setStep('list') : navigate('/login')}
-            className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            {step === 'input' ? 'กลับไปหน้ารายการ' : 'กลับหน้าเมนูเจ้าหน้าที่'}
-          </button>
+    <div className="min-h-screen bg-[#FDFCFB]">
+      <StaffHeader />
+      <div className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button 
+              onClick={() => step === 'input' ? setStep('list') : navigate('/login')}
+              className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              {step === 'input' ? 'กลับไปหน้ารายการ' : 'กลับหน้าเมนูเจ้าหน้าที่'}
+            </button>
           
           {step === 'list' && (
             <button 
@@ -630,6 +633,7 @@ export default function DoctorScheduleEntry() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

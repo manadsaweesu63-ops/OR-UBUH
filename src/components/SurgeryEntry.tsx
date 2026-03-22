@@ -18,6 +18,7 @@ import { format, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { addSurgerySchedule } from '../services/surgeryService';
 import { getDoctors, Doctor } from '../services/doctorListService';
+import StaffHeader from './StaffHeader';
 
 const ROOMS = ['กรุณาเลือก','Minor 1', 'Minor 2', 'Major 1'];
 const SURGERY_TYPES = ['กรุณาเลือก','Minor', 'Major'];
@@ -83,17 +84,19 @@ export default function SurgeryEntry() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => step === 'confirm' ? setStep('input') : navigate('/login')}
-            className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            {step === 'confirm' ? 'กลับไปแก้ไข' : 'กลับหน้าเมนูเจ้าหน้าที่'}
-          </button>
+    <div className="min-h-screen bg-[#FDFCFB]">
+      <StaffHeader />
+      <div className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button 
+              onClick={() => step === 'confirm' ? setStep('input') : navigate('/login')}
+              className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              {step === 'confirm' ? 'กลับไปแก้ไข' : 'กลับหน้าเมนูเจ้าหน้าที่'}
+            </button>
           
           <div className="flex items-center gap-3">
             <div className={cn(
@@ -438,6 +441,7 @@ export default function SurgeryEntry() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

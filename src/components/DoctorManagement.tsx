@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { subscribeToDoctors, addDoctor, updateDoctor, deleteDoctor, Doctor } from '../services/doctorListService';
+import StaffHeader from './StaffHeader';
 
 const CLINICS = [
   'ศัลยกรรมตกแต่ง',
@@ -83,16 +84,18 @@ export default function DoctorManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-emerald-50/30 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <button 
-            onClick={() => navigate('/login')}
-            className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            กลับหน้าเมนูเจ้าหน้าที่
-          </button>
+    <div className="min-h-screen bg-emerald-50/30">
+      <StaffHeader />
+      <div className="py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <button 
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              กลับหน้าเมนูเจ้าหน้าที่
+            </button>
           
           {!isAdding && !editingId && (
             <button 
@@ -233,6 +236,7 @@ export default function DoctorManagement() {
               </p>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

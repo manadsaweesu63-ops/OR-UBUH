@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2 } from 'lucide-react';
+import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2, LogOut, Clock, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 
@@ -30,7 +30,7 @@ export default function Login() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-12 text-center"
+        className="w-full max-w-5xl bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-8 md:p-16 text-center relative"
       >
         <button 
           onClick={() => {
@@ -47,7 +47,7 @@ export default function Login() {
         </button>
 
         {!isLoggedIn ? (
-          <>
+          <div className="max-w-md mx-auto">
             <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
               <Lock className="w-10 h-10 text-blue-600" />
             </div>
@@ -90,83 +90,97 @@ export default function Login() {
                 ยืนยันตัวตน
               </button>
             </form>
-          </>
+          </div>
         ) : (
-          <>
+          <div className="w-full">
             <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
               <ShieldCheck className="w-10 h-10 text-emerald-600" />
             </div>
 
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">ยินดีต้อนรับเจ้าหน้าที่</h1>
-            <p className="text-slate-500 mb-8">กรุณาเลือกเมนูที่ต้องการใช้งาน</p>
+            <h1 className="text-3xl font-black text-slate-900 mb-2">ยินดีต้อนรับเจ้าหน้าที่</h1>
+            <p className="text-slate-500 mb-12">กรุณาเลือกเมนูที่ต้องการใช้งาน</p>
 
-            <div className="grid grid-cols-1 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               <button 
                 onClick={() => navigate('/surgery-entry')}
-                className="flex items-center gap-4 p-6 bg-emerald-50 rounded-3xl border border-emerald-100 hover:bg-emerald-100 transition-all group text-left"
+                className="flex flex-col items-center text-center gap-4 p-8 bg-emerald-50 rounded-[2rem] border border-emerald-100 hover:bg-emerald-100 transition-all group shadow-sm hover:shadow-md"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <ClipboardList className="w-6 h-6" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <ClipboardList className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-slate-900">ลงข้อมูลผู้ป่วยผ่าตัด</div>
-                  <div className="text-sm text-slate-500">เพิ่มรายการผ่าตัดใหม่</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">ลงข้อมูลผู้ป่วยผ่าตัด</div>
+                  <div className="text-sm text-slate-500 font-bold">เพิ่มรายการผ่าตัดใหม่</div>
                 </div>
               </button>
 
               <button 
                 onClick={() => navigate('/doctor-entry')}
-                className="flex items-center gap-4 p-6 bg-indigo-50 rounded-3xl border border-indigo-100 hover:bg-indigo-100 transition-all group text-left"
+                className="flex flex-col items-center text-center gap-4 p-8 bg-indigo-50 rounded-[2rem] border border-indigo-100 hover:bg-indigo-100 transition-all group shadow-sm hover:shadow-md"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <Stethoscope className="w-6 h-6" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Stethoscope className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-slate-900">จัดการตารางออกตรวจ</div>
-                  <div className="text-sm text-slate-500">เพิ่ม/แก้ไข ตารางแพทย์</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">จัดการตารางออกตรวจ</div>
+                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/แก้ไข ตารางแพทย์</div>
                 </div>
               </button>
 
               <button 
                 onClick={() => navigate('/doctor-management')}
-                className="flex items-center gap-4 p-6 bg-blue-50 rounded-3xl border border-blue-100 hover:bg-blue-100 transition-all group text-left"
+                className="flex flex-col items-center text-center gap-4 p-8 bg-blue-50 rounded-[2rem] border border-blue-100 hover:bg-blue-100 transition-all group shadow-sm hover:shadow-md"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <User className="w-6 h-6" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <User className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-slate-900">จัดการรายชื่อแพทย์</div>
-                  <div className="text-sm text-slate-500">เพิ่ม/ลบ รายชื่อแพทย์</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">จัดการรายชื่อแพทย์</div>
+                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/ลบ รายชื่อแพทย์</div>
                 </div>
               </button>
 
               <button 
                 onClick={() => navigate('/schedule')}
-                className="flex items-center gap-4 p-6 bg-blue-50 rounded-3xl border border-blue-100 hover:bg-blue-100 transition-all group text-left"
+                className="flex flex-col items-center text-center gap-4 p-8 bg-amber-50 rounded-[2rem] border border-amber-100 hover:bg-amber-100 transition-all group shadow-sm hover:shadow-md"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="w-6 h-6" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-amber-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Clock className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-slate-900">ตารางวันผ่าตัด</div>
-                  <div className="text-sm text-slate-500">ดูรายการผ่าตัดรายวัน</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">ตารางวันผ่าตัด</div>
+                  <div className="text-sm text-slate-500 font-bold">ดูรายการผ่าตัดรายวัน</div>
                 </div>
               </button>
               
               <button 
                 onClick={() => navigate('/admin/status')}
-                className="flex items-center gap-4 p-6 bg-emerald-50 rounded-3xl border border-emerald-100 hover:bg-emerald-100 transition-all group text-left"
+                className="flex flex-col items-center text-center gap-4 p-8 bg-rose-50 rounded-[2rem] border border-rose-100 hover:bg-rose-100 transition-all group shadow-sm hover:shadow-md"
               >
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="w-6 h-6" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-rose-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Activity className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-lg font-bold text-slate-900">สถานะห้องผ่าตัด</div>
-                  <div className="text-sm text-slate-500">ดูสถานะห้องผ่าตัดแบบ Real-time</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">สถานะห้องผ่าตัด</div>
+                  <div className="text-sm text-slate-500 font-bold">ดูสถานะห้องผ่าตัด Real-time</div>
                 </div>
               </button>
             </div>
-          </>
+
+            <div className="max-w-xs mx-auto">
+              <button 
+                onClick={() => {
+                  localStorage.removeItem('isStaff');
+                  setIsLoggedIn(false);
+                  navigate('/');
+                }}
+                className="w-full py-4 bg-rose-50 text-rose-600 font-black rounded-2xl hover:bg-rose-100 transition-all flex items-center justify-center gap-2 border border-rose-100"
+              >
+                <LogOut className="w-5 h-5" />
+                ออกจากระบบ
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="mt-12 pt-8 border-t border-slate-100">

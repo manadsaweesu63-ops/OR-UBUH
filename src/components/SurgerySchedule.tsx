@@ -46,6 +46,7 @@ import {
 } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { cn } from '../lib/utils';
+import StaffHeader from './StaffHeader';
 
 const DEFAULT_COLOR = { 
   bg: 'bg-slate-50', 
@@ -218,55 +219,50 @@ export default function SurgerySchedulePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Delete Confirmation Modal */}
-        <AnimatePresence>
-          {deleteConfirmId && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl border border-slate-100"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 mb-6">
-                  <Trash2 className="w-8 h-8" />
-                </div>
-                <h3 className="text-2xl font-black text-slate-800 mb-2">ยืนยันการลบข้อมูล?</h3>
-                <p className="text-slate-500 font-bold mb-8">
-                  คุณแน่ใจหรือไม่ว่าต้องการลบรายการผ่าตัดนี้? ข้อมูลที่ลบแล้วจะไม่สามารถกู้คืนได้
-                </p>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setDeleteConfirmId(null)}
-                    className="flex-grow py-4 bg-slate-100 text-slate-500 rounded-2xl font-black hover:bg-slate-200 transition-all"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button 
-                    onClick={confirmDelete}
-                    className="flex-grow py-4 bg-rose-500 text-white rounded-2xl font-black hover:bg-rose-600 transition-all shadow-lg shadow-rose-200"
-                  >
-                    ลบข้อมูล
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+    <div className="min-h-screen bg-[#FDFCFB]">
+      <StaffHeader />
+      <div className="py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Delete Confirmation Modal */}
+          <AnimatePresence>
+            {deleteConfirmId && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl border border-slate-100"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 mb-6">
+                    <Trash2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-black text-slate-800 mb-2">ยืนยันการลบข้อมูล?</h3>
+                  <p className="text-slate-500 font-bold mb-8">
+                    คุณแน่ใจหรือไม่ว่าต้องการลบรายการผ่าตัดนี้? ข้อมูลที่ลบแล้วจะไม่สามารถกู้คืนได้
+                  </p>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="flex-grow py-4 bg-slate-100 text-slate-500 rounded-2xl font-black hover:bg-slate-200 transition-all"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button 
+                      onClick={confirmDelete}
+                      className="flex-grow py-4 bg-rose-500 text-white rounded-2xl font-black hover:bg-rose-600 transition-all shadow-lg shadow-rose-200"
+                    >
+                      ลบข้อมูล
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
 
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <div className="flex flex-col gap-4">
-            <button 
-              onClick={() => navigate('/login')}
-              className="flex items-center gap-2 text-slate-500 hover:text-olive-dark transition-colors font-medium w-fit"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              กลับหน้าเมนูเจ้าหน้าที่
-            </button>
-            <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm w-fit">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div className="flex flex-col gap-4">
+              <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm w-fit">
               <button 
                 onClick={() => setViewMode('calendar')}
                 className={cn(
@@ -792,6 +788,7 @@ export default function SurgerySchedulePage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
