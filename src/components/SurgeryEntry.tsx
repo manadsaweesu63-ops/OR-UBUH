@@ -73,8 +73,13 @@ export default function SurgeryEntry() {
   };
 
   const handleConfirm = async () => {
-    await addSurgerySchedule(formData);
-    setStep('success');
+    try {
+      await addSurgerySchedule(formData);
+      setStep('success');
+    } catch (error) {
+      console.error('Error saving surgery:', error);
+      alert('ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตหรือลองเข้าสู่ระบบใหม่อีกครั้ง');
+    }
   };
 
   return (

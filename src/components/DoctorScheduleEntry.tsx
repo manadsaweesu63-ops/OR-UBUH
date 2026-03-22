@@ -30,8 +30,8 @@ import {
   setYear
 } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { addDoctorSchedule, getDoctorSchedules, updateDoctorSchedule, deleteDoctorSchedule, DoctorSchedule } from '../services/doctorService';
-import { getDoctors, Doctor } from '../services/doctorListService';
+import { addDoctorSchedule, getDoctorSchedules, updateDoctorSchedule, deleteDoctorSchedule, DoctorSchedule, subscribeToDoctorSchedules } from '../services/doctorService';
+import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
 
 const CLINICS = [
   'ศัลยกรรมตกแต่ง',
@@ -81,19 +81,19 @@ export default function DoctorScheduleEntry() {
   const YEARS_TH = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [schedulesData, doctorsData] = await Promise.all([
-        getDoctorSchedules(),
-        getDoctors()
-      ]);
-      setSchedules(schedulesData);
-      setDoctorsList(doctorsData);
-      if (doctorsData.length > 0 && !editingId) {
-        setFormData(prev => ({ ...prev, name: doctorsData[0].name }));
+    const unsubscribeSchedules = subscribeToDoctorSchedules(setSchedules);
+    const unsubscribeDoctors = subscribeToDoctors((data) => {
+      setDoctorsList(data);
+      if (data.length > 0 && !editingId && !formData.name) {
+        setFormData(prev => ({ ...prev, name: data[0].name }));
       }
+    });
+    
+    return () => {
+      unsubscribeSchedules();
+      unsubscribeDoctors();
     };
-    fetchData();
-  }, [editingId]);
+  }, [editingId, formData.name]);
 
   const handleAddScheduleItem = () => {
     if (formData.schedule.some(s => s.day === newDay)) {

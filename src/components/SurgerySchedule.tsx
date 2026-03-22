@@ -3,9 +3,10 @@ import {
   getSurgerySchedule, 
   SurgerySchedule, 
   updateSurgerySchedule, 
-  deleteSurgerySchedule 
+  deleteSurgerySchedule,
+  subscribeToSurgerySchedule
 } from '../services/surgeryService';
-import { getDoctors, Doctor } from '../services/doctorListService';
+import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -117,15 +118,13 @@ export default function SurgerySchedulePage() {
   const isStaff = localStorage.getItem('isStaff') === 'true';
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      const [scheduleData, doctorsData] = await Promise.all([
-        getSurgerySchedule(),
-        getDoctors()
-      ]);
-      setSurgeries(scheduleData);
-      setDoctors(doctorsData);
+    const unsubscribeSurgeries = subscribeToSurgerySchedule(setSurgeries);
+    const unsubscribeDoctors = subscribeToDoctors(setDoctors);
+    
+    return () => {
+      unsubscribeSurgeries();
+      unsubscribeDoctors();
     };
-    fetchData();
   }, []);
 
   const handleEdit = (item: SurgerySchedule) => {
@@ -135,9 +134,13 @@ export default function SurgerySchedulePage() {
 
   const handleSave = async () => {
     if (editingId) {
-      const updated = await updateSurgerySchedule(editingId, editForm);
-      setSurgeries(updated);
-      setEditingId(null);
+      try {
+        await updateSurgerySchedule(editingId, editForm);
+        setEditingId(null);
+      } catch (error) {
+        console.error('Error updating surgery:', error);
+        alert('ไม่สามารถบันทึกการแก้ไขได้');
+      }
     }
   };
 
@@ -147,9 +150,13 @@ export default function SurgerySchedulePage() {
 
   const confirmDelete = async () => {
     if (deleteConfirmId) {
-      const updated = await deleteSurgerySchedule(deleteConfirmId);
-      setSurgeries(updated);
-      setDeleteConfirmId(null);
+      try {
+        await deleteSurgerySchedule(deleteConfirmId);
+        setDeleteConfirmId(null);
+      } catch (error) {
+        console.error('Error deleting surgery:', error);
+        alert('ไม่สามารถลบข้อมูลได้');
+      }
     }
   };
 

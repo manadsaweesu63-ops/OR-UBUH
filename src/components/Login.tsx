@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User } from 'lucide-react';
+import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
 
 export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isStaff') === 'true');
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     // Simple mock password for demo
     if (password === 'or1234') {
-      localStorage.setItem('isStaff', 'true');
-      setIsLoggedIn(true);
+      try {
+        await signInAnonymously(auth);
+        localStorage.setItem('isStaff', 'true');
+        setIsLoggedIn(true);
+      } catch (err) {
+        console.error('Firebase Auth Error:', err);
+        setError(true);
+      }
     } else {
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -75,9 +86,14 @@ export default function Login() {
 
               <button 
                 type="submit"
-                className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <ShieldCheck className="w-5 h-5" />
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ShieldCheck className="w-5 h-5" />
+                )}
                 ยืนยันตัวตน
               </button>
             </form>

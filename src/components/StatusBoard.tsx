@@ -6,7 +6,7 @@ import { cn } from '../lib/utils';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getSurgerySchedule, updateSurgerySchedule } from '../services/surgeryService';
+import { getSurgerySchedule, updateSurgerySchedule, subscribeToSurgerySchedule } from '../services/surgeryService';
 
 const getInitials = (name: string) => {
   const parts = name.split(' ');
@@ -51,39 +51,35 @@ export default function StatusBoard() {
     }
   }, [isAdminPath, isStaff, navigate]);
 
-  const loadPatients = useCallback(async () => {
-    const schedule = await getSurgerySchedule();
-    const today = new Date();
-    
-    const todaySurgeries = schedule.filter(item => {
-      try {
-        return isSameDay(parseISO(item.date), today);
-      } catch (e) {
-        return false;
-      }
+  useEffect(() => {
+    const unsubscribe = subscribeToSurgerySchedule((schedule) => {
+      const today = new Date();
+      
+      const todaySurgeries = schedule.filter(item => {
+        try {
+          return isSameDay(parseISO(item.date), today);
+        } catch (e) {
+          return false;
+        }
+      });
+
+      const mappedPatients: Patient[] = todaySurgeries.map(item => ({
+        id: item.id,
+        code: item.patientHN,
+        nameInitials: getInitials(item.patientName),
+        fullName: item.patientName,
+        room: item.room,
+        procedure: item.procedure,
+        status: item.status || 'preparing',
+        startTime: item.time,
+        lastUpdate: format(new Date(), 'HH:mm'),
+      }));
+
+      setPatients(mappedPatients);
     });
 
-    const mappedPatients: Patient[] = todaySurgeries.map(item => ({
-      id: item.id,
-      code: item.patientHN,
-      nameInitials: getInitials(item.patientName),
-      fullName: item.patientName,
-      room: item.room,
-      procedure: item.procedure,
-      status: item.status || 'preparing',
-      startTime: item.time,
-      lastUpdate: format(new Date(), 'HH:mm'), // In a real app, this would come from the record
-    }));
-
-    setPatients(mappedPatients);
+    return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    loadPatients();
-    // Refresh every 30 seconds to get new schedule entries
-    const interval = setInterval(loadPatients, 30000);
-    return () => clearInterval(interval);
-  }, [loadPatients]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
