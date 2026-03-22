@@ -146,6 +146,7 @@ export default function SurgeryEntry() {
                         <input 
                           required
                           name="patientHN"
+                          autoComplete="off"
                           value={formData.patientHN}
                           onChange={handleChange}
                           placeholder="เช่น 88962"
@@ -157,6 +158,7 @@ export default function SurgeryEntry() {
                         <input 
                           required
                           name="patientName"
+                          autoComplete="off"
                           value={formData.patientName}
                           onChange={handleChange}
                           placeholder="ระบุชื่อ-นามสกุลคนไข้"
@@ -169,6 +171,7 @@ export default function SurgeryEntry() {
                           required
                           type="number"
                           name="patientAge"
+                          autoComplete="off"
                           value={formData.patientAge}
                           onChange={handleChange}
                           placeholder="เช่น 45"
@@ -190,6 +193,7 @@ export default function SurgeryEntry() {
                         <input 
                           required
                           name="procedure"
+                          autoComplete="off"
                           value={formData.procedure}
                           onChange={handleChange}
                           placeholder="ระบุชื่อการผ่าตัด"
