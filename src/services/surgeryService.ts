@@ -26,7 +26,7 @@ export interface SurgerySchedule {
   surgeryType: 'Minor' | 'Major';
   department: string;
   notes?: string;
-  status?: 'preparing' | 'surgery' | 'recovery' | 'completed' | 'canceled';
+  status?: 'preparing' | 'confirmed' | 'surgery' | 'recovery' | 'completed' | 'canceled';
   createdAt?: string;
   updatedAt?: string;
 }

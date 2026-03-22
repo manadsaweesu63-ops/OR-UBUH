@@ -357,8 +357,10 @@ export default function StatusBoard() {
                   )}>
                     {patient.status === 'surgery' && <Activity className="w-4 h-4 animate-pulse" />}
                     {patient.status === 'preparing' && <Clock className="w-4 h-4" />}
+                    {patient.status === 'confirmed' && <CheckCircle2 className="w-4 h-4" />}
                     {patient.status === 'recovery' && <Heart className="w-4 h-4 animate-bounce" />}
                     {patient.status === 'completed' && <CheckCircle2 className="w-4 h-4" />}
+                    {patient.status === 'canceled' && <X className="w-4 h-4" />}
                     <span>{STATUS_LABELS[patient.status].label}</span>
                   </div>
                 </div>

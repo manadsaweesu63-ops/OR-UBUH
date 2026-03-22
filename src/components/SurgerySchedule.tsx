@@ -602,12 +602,27 @@ export default function SurgerySchedulePage() {
                                       <option value="Minor">Minor</option>
                                       <option value="Major">Major</option>
                                     </select>
-                                    <input 
+                                    <select 
                                       value={editForm.room}
                                       onChange={(e) => setEditForm({ ...editForm, room: e.target.value })}
                                       className="px-3 py-1 rounded-full text-xs font-black bg-slate-50 border border-slate-200"
-                                      placeholder="ห้องผ่าตัด"
-                                    />
+                                    >
+                                      <option value="Minor 1">Minor 1</option>
+                                      <option value="Minor 2">Minor 2</option>
+                                      <option value="Major 1">Major 1</option>
+                                    </select>
+                                    <select 
+                                      value={editForm.status}
+                                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value as any })}
+                                      className="px-3 py-1 rounded-full text-xs font-black bg-slate-50 border border-slate-200"
+                                    >
+                                      <option value="preparing">กำลังเตรียมการ</option>
+                                      <option value="confirmed">คอนเฟิร์มแล้ว</option>
+                                      <option value="surgery">กำลังผ่าตัด</option>
+                                      <option value="recovery">ห้องพักฟื้น</option>
+                                      <option value="completed">เสร็จสิ้น</option>
+                                      <option value="canceled">ยกเลิก</option>
+                                    </select>
                                   </>
                                 ) : (
                                   <>
@@ -630,12 +645,14 @@ export default function SurgerySchedulePage() {
                                   <span className={cn(
                                     "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black",
                                     item.status === 'preparing' && "bg-blue-50 text-blue-600 border border-blue-100",
+                                    item.status === 'confirmed' && "bg-indigo-50 text-indigo-600 border border-indigo-100",
                                     item.status === 'surgery' && "bg-amber-50 text-amber-600 border border-amber-100",
                                     item.status === 'recovery' && "bg-emerald-50 text-emerald-600 border border-emerald-100",
                                     item.status === 'completed' && "bg-slate-50 text-slate-600 border border-slate-100",
                                     item.status === 'canceled' && "bg-rose-50 text-rose-600 border border-rose-100"
                                   )}>
                                     {item.status === 'preparing' && 'กำลังเตรียมการ'}
+                                    {item.status === 'confirmed' && 'คอนเฟิร์มแล้ว'}
                                     {item.status === 'surgery' && 'กำลังผ่าตัด'}
                                     {item.status === 'recovery' && 'ห้องพักฟื้น'}
                                     {item.status === 'completed' && 'เสร็จสิ้น'}
