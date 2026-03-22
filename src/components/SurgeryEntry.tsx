@@ -17,16 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { addSurgerySchedule } from '../services/surgeryService';
-
-const DOCTORS_LIST = [
-  'กรุณาเลือก',
-  'อ.นพ. ดิน ตังคโณบล',
-  'อ.นพ. ภาณุวัตร สุธรรมวงศ์',
-  'อ.นพ. วัฒนา พรรณพานิช',
-  'อ.นพ. เกริก สุวรรณกาฬ',
-  'อ.นพ. สิทธิชัย ทองแสง',
-  'อ.พญ. นวรัตน์ เกียรติอรุณ'
-];
+import { getDoctors, Doctor } from '../services/doctorListService';
 
 const ROOMS = ['กรุณาเลือก','Minor 1', 'Minor 2', 'Major 1'];
 const SURGERY_TYPES = ['กรุณาเลือก','Minor', 'Major'];
@@ -35,6 +26,7 @@ const DEPARTMENTS = ['กรุณาเลือก','Plastic Surgery', 'Genera
 export default function SurgeryEntry() {
   const navigate = useNavigate();
   const [step, setStep] = useState<'input' | 'confirm' | 'success'>('input');
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [formData, setFormData] = useState({
     patientHN: '',
     patientName: '',
@@ -43,10 +35,22 @@ export default function SurgeryEntry() {
     surgeryType: SURGERY_TYPES[0] as 'Minor' | 'Major',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '09:00',
-    doctor: DOCTORS_LIST[0],
+    doctor: '',
     room: ROOMS[0],
-    department: DEPARTMENTS[0]
+    department: DEPARTMENTS[0],
+    notes: ''
   });
+
+  React.useEffect(() => {
+    const fetchDoctors = async () => {
+      const data = await getDoctors();
+      setDoctors(data);
+      if (data.length > 0) {
+        setFormData(prev => ({ ...prev, doctor: data[0].name }));
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -227,7 +231,11 @@ export default function SurgeryEntry() {
                           onChange={handleChange}
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                         >
-                          {DOCTORS_LIST.map(doc => <option key={doc} value={doc}>{doc}</option>)}
+                          {doctors.length === 0 ? (
+                            <option value="">ไม่มีรายชื่อแพทย์ (กรุณาเพิ่มในระบบ)</option>
+                          ) : (
+                            doctors.map(doc => <option key={doc.id} value={doc.name}>{doc.name}</option>)
+                          )}
                         </select>
                       </div>
                       <div className="space-y-2">
@@ -253,7 +261,7 @@ export default function SurgeryEntry() {
                         </select>
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-bold text-slate-500 ml-1">กลุ่มงาน</label>
+                        <label className="text-sm font-bold text-slate-500 ml-1">ภาควิชา</label>
                         <select 
                           name="department"
                           value={formData.department}
@@ -262,6 +270,16 @@ export default function SurgeryEntry() {
                         >
                           {DEPARTMENTS.map(dept => <option key={dept} value={dept}>{dept}</option>)}
                         </select>
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm font-bold text-slate-500 ml-1">หมายเหตุ (ถ้ามี)</label>
+                        <textarea 
+                          name="notes"
+                          value={formData.notes}
+                          onChange={handleChange}
+                          placeholder="ระบุหมายเหตุเพิ่มเติม เช่น เลื่อนนัดมาจากวันที่..."
+                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold min-h-[100px]"
+                        />
                       </div>
                     </div>
                   </div>
@@ -333,9 +351,15 @@ export default function SurgeryEntry() {
                     <p className="text-xl font-black text-slate-800">{formData.doctor}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">กลุ่มงาน</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ภาควิชา</p>
                     <p className="text-xl font-black text-slate-800">{formData.department}</p>
                   </div>
+                  {formData.notes && (
+                    <div className="space-y-1 md:col-span-2">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">หมายเหตุ</p>
+                      <p className="text-lg font-bold text-slate-600 italic">{formData.notes}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -384,9 +408,10 @@ export default function SurgeryEntry() {
                       surgeryType: SURGERY_TYPES[0] as 'Minor' | 'Major',
                       date: format(new Date(), 'yyyy-MM-dd'),
                       time: '09:00',
-                      doctor: DOCTORS_LIST[0],
+                      doctor: doctors.length > 0 ? doctors[0].name : '',
                       room: ROOMS[0],
-                      department: DEPARTMENTS[0]
+                      department: DEPARTMENTS[0],
+                      notes: ''
                     });
                     setStep('input');
                   }}

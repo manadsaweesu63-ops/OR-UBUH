@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList } from 'lucide-react';
+import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
@@ -102,6 +102,32 @@ export default function Login() {
                 <div>
                   <div className="text-lg font-bold text-slate-900">ลงข้อมูลผู้ป่วยผ่าตัด</div>
                   <div className="text-sm text-slate-500">เพิ่มรายการผ่าตัดใหม่</div>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/doctor-entry')}
+                className="flex items-center gap-4 p-6 bg-indigo-50 rounded-3xl border border-indigo-100 hover:bg-indigo-100 transition-all group text-left"
+              >
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Stethoscope className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-slate-900">จัดการตารางออกตรวจ</div>
+                  <div className="text-sm text-slate-500">เพิ่ม/แก้ไข ตารางแพทย์</div>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/doctor-management')}
+                className="flex items-center gap-4 p-6 bg-blue-50 rounded-3xl border border-blue-100 hover:bg-blue-100 transition-all group text-left"
+              >
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <User className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-slate-900">จัดการรายชื่อแพทย์</div>
+                  <div className="text-sm text-slate-500">เพิ่ม/ลบ รายชื่อแพทย์</div>
                 </div>
               </button>
 

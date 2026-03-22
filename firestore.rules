@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "manadsawee.su.63@ubu.ac.th" && request.auth.token.email_verified == true));
+    }
+
+    // Surgery Schedules
+    match /surgery_schedules/{scheduleId} {
+      allow read: if true; // Public can see the board
+      allow write: if isAuthenticated(); // Staff can edit
+    }
+
+    // Doctor Schedules
+    match /doctor_schedules/{doctorId} {
+      allow read: if true; // Public can see the schedule
+      allow write: if isAuthenticated(); // Staff can edit
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

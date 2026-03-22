@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -29,6 +29,7 @@ import {
   setMonth
 } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { subscribeToDoctorSchedules, DoctorSchedule as DoctorScheduleType } from '../services/doctorService';
 
 // Clinic configurations with pastel colors
 const CLINICS = {
@@ -40,57 +41,6 @@ const CLINICS = {
   'จักษุ': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
 };
 
-const DOCTORS = [
-  { 
-    name: 'อ.นพ. ดิน ตังคโณบล', 
-    clinic: 'ศัลยกรรมตกแต่ง', 
-    schedule: [
-      { day: 1, time: '08:00 - 12:00 น.' } // Monday
-    ],
-    exclusions: ['2026-03-23'] // Specific date exclusion
-  },
-  { 
-    name: 'อ.นพ. ภาณุวัตร สุธรรมวงศ์', 
-    clinic: 'ศัลยกรรมตกแต่ง', 
-    schedule: [
-      { day: 2, time: '08:00 - 12:00 น.' } // Tuesday
-    ],
-    exclusions: ['2026-03-17'] // Specific date exclusion
-  },
-  { 
-    name: 'อ.นพ. วัฒนา พรรณพานิช', 
-    clinic: 'ศัลยกรรมระบบทางเดินปัสสาวะ', 
-    schedule: [
-      { day: 1, time: '13:00 - 16:00 น.' } // Monday
-    ]
-  },
-  { 
-    name: 'อ.นพ. เกริก สุวรรณกาฬ', 
-    clinic: 'ศัลยกรรมทั่วไป', 
-    schedule: [
-      { day: 3, time: '09:00 - 12:00 น.' }, // Wednesday
-      { day: 4, time: '08:00 - 12:00 น.' }  // Thursday
-    ],
-    exclusions: ['2026-03-11', '2026-03-12']
-  },
-  { 
-    name: 'อ.นพ. สิทธิชัย ทองแสง', 
-    clinic: 'ศัลยกรรมกระดูกและข้อ', 
-    schedule: [
-      { day: 1, time: '08:00 - 16:00 น.' } // Monday
-    ]
-  },
-  { 
-    name: 'อ.พญ. นวรัตน์ เกียรติอรุณ', 
-    clinic: 'โสต ศอ นาสิก', 
-    schedule: [
-      { day: 1, time: '08:00 - 16:00 น.' }, // Monday
-      { day: 5, time: '13:00 - 16:00 น.' }  // Friday
-    ],
-    exclusions: ['2026-03-13'] // Specific date exclusion
-  },
-];
-
 const MONTHS = [
   'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
   'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
@@ -100,9 +50,17 @@ const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i);
 
 export default function DoctorSchedule() {
   const navigate = useNavigate();
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 1)); // Default to March 2026
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedClinic, setSelectedClinic] = useState('ทั้งหมด');
   const [selectedDoctor, setSelectedDoctor] = useState('ทั้งหมด');
+  const [doctors, setDoctors] = useState<DoctorScheduleType[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToDoctorSchedules((data) => {
+      setDoctors(data);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -112,27 +70,32 @@ export default function DoctorSchedule() {
   const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
 
   const filteredDoctors = useMemo(() => {
-    return DOCTORS.filter(doc => {
+    return doctors.filter(doc => {
       const clinicMatch = selectedClinic === 'ทั้งหมด' || doc.clinic === selectedClinic;
       const doctorMatch = selectedDoctor === 'ทั้งหมด' || doc.name === selectedDoctor;
       return clinicMatch && doctorMatch;
     });
-  }, [selectedClinic, selectedDoctor]);
+  }, [selectedClinic, selectedDoctor, doctors]);
 
   const getDayEvents = (day: Date) => {
     const dayOfWeek = getDay(day);
     const dateString = format(day, 'yyyy-MM-dd');
     
-    // Only show data for March 2026 as per user request
-    if (day.getMonth() !== 2 || day.getFullYear() !== 2026) return [];
-
     return filteredDoctors
-      .filter(doc => !((doc as any).exclusions?.includes(dateString)))
-      .flatMap(doc => 
-        doc.schedule
+      .filter(doc => !(doc.exclusions?.includes(dateString)))
+      .flatMap(doc => {
+        // Recurring weekly events
+        const weeklyEvents = doc.schedule
           .filter(s => s.day === dayOfWeek)
-          .map(s => ({ ...doc, time: s.time }))
-      );
+          .map(s => ({ ...doc, time: s.time }));
+        
+        // Specific date events
+        const specificEvents = (doc.specificDates || [])
+          .filter(sd => sd.date === dateString)
+          .map(sd => ({ ...doc, time: sd.time }));
+          
+        return [...weeklyEvents, ...specificEvents];
+      });
   };
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -203,7 +166,7 @@ export default function DoctorSchedule() {
               className="w-full bg-slate-50 border-none rounded-xl px-3 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-indigo-500"
             >
               <option value="ทั้งหมด">ทั้งหมด</option>
-              {[...DOCTORS]
+              {[...doctors]
                 .sort((a, b) => a.name.localeCompare(b.name, 'th'))
                 .map(d => <option key={d.name} value={d.name}>{d.name}</option>)
               }
@@ -312,14 +275,14 @@ export default function DoctorSchedule() {
             })}
           </div>
 
-          {/* No Data Notice for other months */}
-          {(currentDate.getMonth() !== 2 || currentDate.getFullYear() !== 2026) && (
+          {/* No Data Notice */}
+          {doctors.length === 0 && (
             <div className="p-12 text-center bg-slate-50/50">
               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mx-auto mb-4 shadow-sm">
                 <Calendar className="w-8 h-8" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">ยังไม่มีข้อมูลตารางตรวจ</h3>
-              <p className="text-slate-500 text-sm">ขณะนี้มีข้อมูลเฉพาะเดือนมีนาคม 2569 เท่านั้น</p>
+              <p className="text-slate-500 text-sm">กรุณาลงข้อมูลตารางตรวจแพทย์ในระบบเจ้าหน้าที่</p>
             </div>
           )}
         </motion.div>

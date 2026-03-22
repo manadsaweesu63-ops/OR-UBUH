@@ -5,6 +5,7 @@ import {
   updateSurgerySchedule, 
   deleteSurgerySchedule 
 } from '../services/surgeryService';
+import { getDoctors, Doctor } from '../services/doctorListService';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -45,16 +46,15 @@ import {
 import { th } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 
-const DOCTORS_LIST = [
-  'อ.นพ. ดิน ตังคโณบล',
-  'อ.นพ. ภาณุวัตร สุธรรมวงศ์',
-  'อ.นพ. วัฒนา พรรณพานิช',
-  'อ.นพ. เกริก สุวรรณกาฬ',
-  'อ.นพ. สิทธิชัย ทองแสง',
-  'อ.พญ. นวรัตน์ เกียรติอรุณ'
-];
+const DEFAULT_COLOR = { 
+  bg: 'bg-slate-50', 
+  text: 'text-slate-700', 
+  border: 'border-slate-200', 
+  bar: 'bg-slate-500',
+  shadow: 'shadow-slate-100'
+};
 
-const DOCTOR_COLORS: { [key: string]: { bg: string, text: string, border: string, bar: string, shadow: string } } = {
+const DOCTOR_COLORS_MAP: { [key: string]: { bg: string, text: string, border: string, bar: string, shadow: string } } = {
   'อ.นพ. ดิน ตังคโณบล': { 
     bg: 'bg-blue-50', 
     text: 'text-blue-700', 
@@ -90,7 +90,7 @@ const DOCTOR_COLORS: { [key: string]: { bg: string, text: string, border: string
     bar: 'bg-indigo-500',
     shadow: 'shadow-indigo-100'
   },
-  'อ.พญ. นวรัตน์ เกียรติอรุณ': { 
+  'อ.พญ. นวรัตน์ เกริกอรุณ': { 
     bg: 'bg-purple-50', 
     text: 'text-purple-700', 
     border: 'border-purple-200', 
@@ -99,10 +99,15 @@ const DOCTOR_COLORS: { [key: string]: { bg: string, text: string, border: string
   },
 };
 
+const getDoctorColor = (name: string) => {
+  return DOCTOR_COLORS_MAP[name] || DEFAULT_COLOR;
+};
+
 export default function SurgerySchedulePage() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [surgeries, setSurgeries] = useState<SurgerySchedule[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string>('all');
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 2, 19)); 
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
@@ -112,11 +117,15 @@ export default function SurgerySchedulePage() {
   const isStaff = localStorage.getItem('isStaff') === 'true';
 
   React.useEffect(() => {
-    const fetchSchedule = async () => {
-      const data = await getSurgerySchedule();
-      setSurgeries(data);
+    const fetchData = async () => {
+      const [scheduleData, doctorsData] = await Promise.all([
+        getSurgerySchedule(),
+        getDoctors()
+      ]);
+      setSurgeries(scheduleData);
+      setDoctors(doctorsData);
     };
-    fetchSchedule();
+    fetchData();
   }, []);
 
   const handleEdit = (item: SurgerySchedule) => {
@@ -256,7 +265,7 @@ export default function SurgerySchedulePage() {
                 className={cn(
                   "px-6 py-2.5 rounded-xl font-black text-sm transition-all flex items-center gap-2",
                   viewMode === 'calendar' 
-                    ? (selectedDoctor === 'all' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : `${DOCTOR_COLORS[selectedDoctor]?.bg} ${DOCTOR_COLORS[selectedDoctor]?.text} shadow-lg ${DOCTOR_COLORS[selectedDoctor]?.shadow}`)
+                    ? (selectedDoctor === 'all' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : `${getDoctorColor(selectedDoctor).bg} ${getDoctorColor(selectedDoctor).text} shadow-lg ${getDoctorColor(selectedDoctor).shadow}`)
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -268,7 +277,7 @@ export default function SurgerySchedulePage() {
                 className={cn(
                   "px-6 py-2.5 rounded-xl font-black text-sm transition-all flex items-center gap-2",
                   viewMode === 'list' 
-                    ? (selectedDoctor === 'all' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : `${DOCTOR_COLORS[selectedDoctor]?.bg} ${DOCTOR_COLORS[selectedDoctor]?.text} shadow-lg ${DOCTOR_COLORS[selectedDoctor]?.shadow}`)
+                    ? (selectedDoctor === 'all' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : `${getDoctorColor(selectedDoctor).bg} ${getDoctorColor(selectedDoctor).text} shadow-lg ${getDoctorColor(selectedDoctor).shadow}`)
                     : "text-slate-400 hover:text-slate-600"
                 )}
               >
@@ -298,7 +307,7 @@ export default function SurgerySchedulePage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={cn(
                   "w-full pl-12 pr-4 py-4 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 transition-all shadow-sm font-bold text-slate-700 text-lg",
-                  selectedDoctor === 'all' ? "focus:ring-emerald-500/10 focus:border-emerald-500" : `${DOCTOR_COLORS[selectedDoctor]?.shadow.replace('shadow-', 'focus:ring-').replace('100', '500/10')} ${DOCTOR_COLORS[selectedDoctor]?.border.replace('border-', 'focus:border-').replace('200', '500')}`
+                  selectedDoctor === 'all' ? "focus:ring-emerald-500/10 focus:border-emerald-500" : `${getDoctorColor(selectedDoctor).shadow.replace('shadow-', 'focus:ring-').replace('100', '500/10')} ${getDoctorColor(selectedDoctor).border.replace('border-', 'focus:border-').replace('200', '500')}`
                 )}
               />
             </div>
@@ -306,7 +315,7 @@ export default function SurgerySchedulePage() {
             <div className="relative min-w-[280px]">
               <div className={cn(
                 "absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center z-10 border transition-colors",
-                selectedDoctor === 'all' ? "bg-emerald-500 text-white border-emerald-400" : `${DOCTOR_COLORS[selectedDoctor]?.bg} ${DOCTOR_COLORS[selectedDoctor]?.text} ${DOCTOR_COLORS[selectedDoctor]?.border}`
+                selectedDoctor === 'all' ? "bg-emerald-500 text-white border-emerald-400" : `${getDoctorColor(selectedDoctor).bg} ${getDoctorColor(selectedDoctor).text} ${getDoctorColor(selectedDoctor).border}`
               )}>
                 <Stethoscope className="w-4 h-4" />
               </div>
@@ -316,8 +325,8 @@ export default function SurgerySchedulePage() {
                 onChange={(e) => setSelectedDoctor(e.target.value)}
               >
                 <option value="all">แสดงแพทย์ทุกคน</option>
-                {DOCTORS_LIST.map(doc => (
-                  <option key={doc} value={doc}>{doc}</option>
+                {doctors.map(doc => (
+                  <option key={doc.id} value={doc.name}>{doc.name}</option>
                 ))}
               </select>
               <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 rotate-90 pointer-events-none" />
@@ -332,8 +341,8 @@ export default function SurgerySchedulePage() {
               <div className="flex items-center gap-5">
                 <div className={cn(
                   "w-16 h-16 rounded-3xl flex items-center justify-center text-white shadow-xl transition-all",
-                  selectedDoctor === 'all' ? "bg-emerald-500 shadow-emerald-200" : (DOCTOR_COLORS[selectedDoctor]?.bar || "bg-slate-500 shadow-slate-200"),
-                  selectedDoctor !== 'all' && DOCTOR_COLORS[selectedDoctor]?.shadow
+                  selectedDoctor === 'all' ? "bg-emerald-500 shadow-emerald-200" : (getDoctorColor(selectedDoctor).bar || "bg-slate-500 shadow-slate-200"),
+                  selectedDoctor !== 'all' && getDoctorColor(selectedDoctor).shadow
                 )}>
                   {selectedDoctor === 'all' ? <CalendarIcon className="w-8 h-8" /> : <Stethoscope className="w-8 h-8" />}
                 </div>
@@ -351,7 +360,7 @@ export default function SurgerySchedulePage() {
                   </h3>
                   <p className={cn(
                     "text-base font-black mt-1",
-                    selectedDoctor === 'all' ? "text-emerald-600" : (DOCTOR_COLORS[selectedDoctor]?.text || "text-slate-600")
+                    selectedDoctor === 'all' ? "text-emerald-600" : (getDoctorColor(selectedDoctor).text || "text-slate-600")
                   )}>
                     พบทั้งหมด {filteredSchedule.length} รายการ
                   </p>
@@ -406,12 +415,15 @@ export default function SurgerySchedulePage() {
             <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden">
               {/* Doctor Legend */}
               <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex flex-wrap gap-4">
-                {Object.entries(DOCTOR_COLORS).map(([name, config]) => (
-                  <div key={name} className="flex items-center gap-2">
-                    <div className={cn("w-3 h-3 rounded-full border", config.bar)} />
-                    <span className="text-sm font-black text-slate-500">{name.split(' ').slice(0, -1).join(' ')}</span>
-                  </div>
-                ))}
+                {doctors.map((doc) => {
+                  const config = getDoctorColor(doc.name);
+                  return (
+                    <div key={doc.id} className="flex items-center gap-2">
+                      <div className={cn("w-3 h-3 rounded-full border", config.bar)} />
+                      <span className="text-sm font-black text-slate-500">{doc.name.split(' ').slice(0, -1).join(' ')}</span>
+                    </div>
+                  );
+                })}
               </div>
               <div className="grid grid-cols-7 border-b border-slate-100">
                 {['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'].map((day, i) => (
@@ -453,7 +465,7 @@ export default function SurgerySchedulePage() {
                       </div>
                       <div className="space-y-1.5 overflow-y-auto max-h-[100px] scrollbar-hide">
                         {daySurgeries.slice(0, 3).map(s => {
-                          const config = DOCTOR_COLORS[s.doctor];
+                          const config = getDoctorColor(s.doctor);
                           return (
                             <div 
                               key={s.id}
@@ -605,7 +617,7 @@ export default function SurgerySchedulePage() {
                                   </>
                                 )}
                                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-sm font-black">
-                                  กลุ่มงาน: {item.department}
+                                  ภาควิชา: {item.department}
                                 </span>
                                 {item.status && (
                                   <span className={cn(
@@ -647,32 +659,48 @@ export default function SurgerySchedulePage() {
                                     <User className="w-4 h-4" />
                                   </div>
                                   {editingId === item.id ? (
-                                    <div className="flex gap-2 flex-grow">
-                                      <input 
-                                        value={editForm.patientHN}
-                                        onChange={(e) => setEditForm({ ...editForm, patientHN: e.target.value })}
-                                        className="text-sm font-bold text-emerald-600 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 w-24"
-                                        placeholder="HN"
-                                      />
-                                      <input 
-                                        value={editForm.patientName}
-                                        onChange={(e) => setEditForm({ ...editForm, patientName: e.target.value })}
-                                        className="text-sm font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 flex-grow"
-                                        placeholder="ชื่อคนไข้"
-                                      />
-                                      <input 
-                                        value={editForm.patientAge}
-                                        onChange={(e) => setEditForm({ ...editForm, patientAge: e.target.value })}
-                                        className="text-sm font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 w-16"
-                                        placeholder="อายุ"
+                                    <div className="flex flex-col gap-2 flex-grow">
+                                      <div className="flex gap-2">
+                                        <input 
+                                          value={editForm.patientHN}
+                                          onChange={(e) => setEditForm({ ...editForm, patientHN: e.target.value })}
+                                          className="text-sm font-bold text-emerald-600 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 w-24"
+                                          placeholder="HN"
+                                        />
+                                        <input 
+                                          value={editForm.patientName}
+                                          onChange={(e) => setEditForm({ ...editForm, patientName: e.target.value })}
+                                          className="text-sm font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 flex-grow"
+                                          placeholder="ชื่อคนไข้"
+                                        />
+                                        <input 
+                                          value={editForm.patientAge}
+                                          onChange={(e) => setEditForm({ ...editForm, patientAge: e.target.value })}
+                                          className="text-sm font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 w-16"
+                                          placeholder="อายุ"
+                                        />
+                                      </div>
+                                      <textarea
+                                        value={editForm.notes || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                                        className="text-sm font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        placeholder="หมายเหตุ (ถ้ามี)"
+                                        rows={2}
                                       />
                                     </div>
                                   ) : (
-                                    <p className="text-lg font-bold text-slate-500">
-                                      <span className="text-emerald-600 mr-2">HN {item.patientHN}</span>
-                                      {item.patientName}
-                                      <span className="ml-3 text-slate-400 font-medium">อายุ {item.patientAge} ปี</span>
-                                    </p>
+                                    <div className="flex flex-col gap-1 flex-grow">
+                                      <p className="text-lg font-bold text-slate-500">
+                                        <span className="text-emerald-600 mr-2">HN {item.patientHN}</span>
+                                        {item.patientName}
+                                        <span className="ml-3 text-slate-400 font-medium">อายุ {item.patientAge} ปี</span>
+                                      </p>
+                                      {item.notes && (
+                                        <p className="text-sm font-medium text-slate-400 italic bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 w-fit">
+                                          หมายเหตุ: {item.notes}
+                                        </p>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -682,9 +710,9 @@ export default function SurgerySchedulePage() {
                               <div className="flex items-center gap-4 md:border-l md:pl-8 border-slate-100 min-w-[240px] shrink-0">
                                 <div className={cn(
                                   "w-12 h-12 rounded-full flex items-center justify-center border shrink-0",
-                                  DOCTOR_COLORS[item.doctor]?.bg || "bg-slate-50",
-                                  DOCTOR_COLORS[item.doctor]?.text || "text-slate-400",
-                                  DOCTOR_COLORS[item.doctor]?.border || "border-slate-100"
+                                  getDoctorColor(item.doctor).bg || "bg-slate-50",
+                                  getDoctorColor(item.doctor).text || "text-slate-400",
+                                  getDoctorColor(item.doctor).border || "border-slate-100"
                                 )}>
                                   <Stethoscope className="w-6 h-6" />
                                 </div>
@@ -692,7 +720,7 @@ export default function SurgerySchedulePage() {
                                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ศัลยแพทย์</p>
                                   <p className={cn(
                                     "font-black text-lg leading-tight",
-                                    DOCTOR_COLORS[item.doctor]?.text || "text-slate-800"
+                                    getDoctorColor(item.doctor).text || "text-slate-800"
                                   )}>{item.doctor}</p>
                                 </div>
                               </div>
