@@ -109,34 +109,8 @@ export default function Login() {
                   <ClipboardList className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-xl font-black text-slate-900 mb-1">ลงข้อมูลผู้ป่วยผ่าตัด</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">เพิ่มข้อมูลผู้ป่วยผ่าตัด</div>
                   <div className="text-sm text-slate-500 font-bold">เพิ่มรายการผ่าตัดใหม่</div>
-                </div>
-              </button>
-
-              <button 
-                onClick={() => navigate('/doctor-entry')}
-                className="flex flex-col items-center text-center gap-4 p-8 bg-indigo-50 rounded-[2rem] border border-indigo-100 hover:bg-indigo-100 transition-all group shadow-sm hover:shadow-md"
-              >
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <Stethoscope className="w-8 h-8" />
-                </div>
-                <div>
-                  <div className="text-xl font-black text-slate-900 mb-1">จัดการตารางออกตรวจ</div>
-                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/แก้ไข ตารางแพทย์</div>
-                </div>
-              </button>
-
-              <button 
-                onClick={() => navigate('/doctor-management')}
-                className="flex flex-col items-center text-center gap-4 p-8 bg-blue-50 rounded-[2rem] border border-blue-100 hover:bg-blue-100 transition-all group shadow-sm hover:shadow-md"
-              >
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
-                  <User className="w-8 h-8" />
-                </div>
-                <div>
-                  <div className="text-xl font-black text-slate-900 mb-1">จัดการรายชื่อแพทย์</div>
-                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/ลบ รายชื่อแพทย์</div>
                 </div>
               </button>
 
@@ -148,7 +122,7 @@ export default function Login() {
                   <Clock className="w-8 h-8" />
                 </div>
                 <div>
-                  <div className="text-xl font-black text-slate-900 mb-1">ตารางวันผ่าตัด</div>
+                  <div className="text-xl font-black text-slate-900 mb-1">ตารางวันนัดผ่าตัด</div>
                   <div className="text-sm text-slate-500 font-bold">ดูรายการผ่าตัดรายวัน</div>
                 </div>
               </button>
@@ -163,6 +137,32 @@ export default function Login() {
                 <div>
                   <div className="text-xl font-black text-slate-900 mb-1">สถานะห้องผ่าตัด</div>
                   <div className="text-sm text-slate-500 font-bold">ดูสถานะห้องผ่าตัด Real-time</div>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/doctor-entry')}
+                className="flex flex-col items-center text-center gap-4 p-8 bg-indigo-50 rounded-[2rem] border border-indigo-100 hover:bg-indigo-100 transition-all group shadow-sm hover:shadow-md"
+              >
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <Stethoscope className="w-8 h-8" />
+                </div>
+                <div>
+                  <div className="text-xl font-black text-slate-900 mb-1">จัดการตารางออกตรวจศัลยแพทย์</div>
+                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/แก้ไข ตารางแพทย์</div>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/doctor-management')}
+                className="flex flex-col items-center text-center gap-4 p-8 bg-blue-50 rounded-[2rem] border border-blue-100 hover:bg-blue-100 transition-all group shadow-sm hover:shadow-md"
+              >
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                  <User className="w-8 h-8" />
+                </div>
+                <div>
+                  <div className="text-xl font-black text-slate-900 mb-1">เพิ่ม/แก้ไขรายชื่อศัลยแพทย์</div>
+                  <div className="text-sm text-slate-500 font-bold">เพิ่ม/ลบ รายชื่อแพทย์</div>
                 </div>
               </button>
             </div>
