@@ -62,7 +62,7 @@ export default function DoctorScheduleEntry() {
   
   const [formData, setFormData] = useState<Omit<DoctorSchedule, 'id'>>({
     name: '',
-    clinic: CLINICS[0],
+    clinic: '',
     schedule: [],
     specificDates: [],
     exclusions: []
@@ -85,9 +85,6 @@ export default function DoctorScheduleEntry() {
     const unsubscribeSchedules = subscribeToDoctorSchedules(setSchedules);
     const unsubscribeDoctors = subscribeToDoctors((data) => {
       setDoctorsList(data);
-      if (data.length > 0 && !editingId && !formData.name) {
-        setFormData(prev => ({ ...prev, name: data[0].name }));
-      }
     });
     
     return () => {
@@ -198,8 +195,8 @@ export default function DoctorScheduleEntry() {
 
   const resetForm = () => {
     setFormData({
-      name: doctorsList.length > 0 ? doctorsList[0].name : '',
-      clinic: CLINICS[0],
+      name: '',
+      clinic: '',
       schedule: [],
       specificDates: [],
       exclusions: []
@@ -342,6 +339,7 @@ export default function DoctorScheduleEntry() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-500 ml-1">ชื่อแพทย์</label>
                     <select 
+                      required
                       value={formData.name}
                       onChange={(e) => {
                         const doc = doctorsList.find(d => d.name === e.target.value);
@@ -353,20 +351,19 @@ export default function DoctorScheduleEntry() {
                       }}
                       className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                     >
-                      {doctorsList.length === 0 ? (
-                        <option value="">ไม่มีรายชื่อแพทย์ (กรุณาเพิ่มในระบบ)</option>
-                      ) : (
-                        doctorsList.map(d => <option key={d.id} value={d.name}>{d.name}</option>)
-                      )}
+                      <option value="">กรุณาเลือก</option>
+                      {doctorsList.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-500 ml-1">คลินิก</label>
                     <select 
+                      required
                       value={formData.clinic}
                       onChange={(e) => setFormData(prev => ({ ...prev, clinic: e.target.value }))}
                       className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                     >
+                      <option value="">กรุณาเลือก</option>
                       {CLINICS.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>

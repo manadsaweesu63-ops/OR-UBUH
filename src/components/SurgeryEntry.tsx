@@ -145,7 +145,7 @@ export default function SurgeryEntry() {
                       ข้อมูลคนไข้
                     </h3>
                     <div className="flex flex-col md:flex-row gap-6">
-                      <div className="w-full md:w-24 space-y-2">
+                      <div className="w-full md:w-32 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">HN</label>
                         <input 
                           required
@@ -154,7 +154,7 @@ export default function SurgeryEntry() {
                           value={formData.patientHN}
                           onChange={handleChange}
                           placeholder="เช่น 123xx"
-                          className="w-full px-4 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
+                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
                       <div className="w-full md:w-32 space-y-2">
@@ -164,7 +164,7 @@ export default function SurgeryEntry() {
                           name="patientTitle"
                           value={formData.patientTitle}
                           onChange={handleChange}
-                          className="w-full px-4 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
+                          className="w-full px-4.5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                         >
                           {PATIENT_TITLES.map(title => <option key={title} value={title}>{title}</option>)}
                         </select>

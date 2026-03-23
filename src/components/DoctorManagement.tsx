@@ -21,7 +21,8 @@ const CLINICS = [
   'ศัลยกรรมกระดูกและข้อ',
   'ศัลยกรรมระบบทางเดินปัสสาวะ',
   'โสต ศอ นาสิก',
-  'จักษุ'
+  'จักษุ',
+  'อื่นๆ'
 ];
 
 export default function DoctorManagement() {
@@ -31,6 +32,7 @@ export default function DoctorManagement() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', clinic: CLINICS[0] });
+  const [customClinic, setCustomClinic] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -49,16 +51,24 @@ export default function DoctorManagement() {
     e.preventDefault();
     if (!formData.name.trim()) return;
 
+    const finalClinic = formData.clinic === 'อื่นๆ' ? customClinic : formData.clinic;
+    if (!finalClinic.trim()) {
+      alert('กรุณาระบุชื่อคลินิก');
+      return;
+    }
+
     setIsSaving(true);
     try {
+      const dataToSave = { ...formData, clinic: finalClinic };
       if (editingId) {
-        await updateDoctor(editingId, formData);
+        await updateDoctor(editingId, dataToSave);
         setEditingId(null);
       } else {
-        await addDoctor(formData);
+        await addDoctor(dataToSave);
         setIsAdding(false);
       }
       setFormData({ name: '', clinic: CLINICS[0] });
+      setCustomClinic('');
     } catch (error) {
       console.error(error);
       alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
@@ -69,7 +79,12 @@ export default function DoctorManagement() {
 
   const handleEdit = (doctor: Doctor) => {
     setEditingId(doctor.id);
-    setFormData({ name: doctor.name, clinic: doctor.clinic });
+    const isStandardClinic = CLINICS.includes(doctor.clinic);
+    setFormData({ 
+      name: doctor.name, 
+      clinic: isStandardClinic ? doctor.clinic : 'อื่นๆ' 
+    });
+    setCustomClinic(isStandardClinic ? '' : doctor.clinic);
     setIsAdding(false);
   };
 
@@ -148,6 +163,18 @@ export default function DoctorManagement() {
                     {CLINICS.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
+                {formData.clinic === 'อื่นๆ' && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-400 ml-1">ระบุคลินิกเพิ่มเติม</label>
+                    <input 
+                      required
+                      value={customClinic}
+                      onChange={(e) => setCustomClinic(e.target.value)}
+                      placeholder="เช่น ศัลยกรรมหัวใจ"
+                      className="w-full px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none font-bold"
+                    />
+                  </div>
+                )}
                 <div className="flex items-end gap-2">
                   <button 
                     type="submit"
@@ -163,6 +190,7 @@ export default function DoctorManagement() {
                       setIsAdding(false);
                       setEditingId(null);
                       setFormData({ name: '', clinic: CLINICS[0] });
+                      setCustomClinic('');
                     }}
                     className="p-2 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-200 transition-all"
                   >
