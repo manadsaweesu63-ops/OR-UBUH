@@ -152,7 +152,7 @@ export default function SurgeryEntry() {
                           autoComplete="off"
                           value={formData.patientHN}
                           onChange={handleChange}
-                          placeholder="เช่น 88962"
+                          placeholder="เช่น 123xx"
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>

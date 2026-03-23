@@ -185,8 +185,7 @@ export default function Login() {
 
         <div className="mt-12 pt-8 border-t border-slate-100">
           <p className="text-xs text-slate-400 leading-relaxed">
-            หากลืมรหัสผ่าน กรุณาติดต่อภาควิชาไอที <br />
-            หรือหัวหน้าตึกห้องผ่าตัด
+            หากลืมรหัสผ่าน กรุณาติดต่อหัวหน้ากลุ่มงานห้องผ่าตัดและวิสัญญี <br />
           </p>
         </div>
       </motion.div>
