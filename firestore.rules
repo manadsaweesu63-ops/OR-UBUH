@@ -30,6 +30,12 @@ service cloud.firestore {
       allow write: if true; // Public write allowed for this specific applet requirement
     }
 
+    // Holidays
+    match /holidays/{holidayId} {
+      allow read: if true;
+      allow write: if true; // Public write allowed for this specific applet requirement
+    }
+
     // User Profiles
     match /users/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;

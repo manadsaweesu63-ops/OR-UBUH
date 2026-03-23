@@ -71,6 +71,7 @@ export default function DoctorScheduleEntry() {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
+  const [holidayFormData, setHolidayFormData] = useState({ date: '', name: '' });
   
   const [formData, setFormData] = useState<Omit<DoctorSchedule, 'id'>>({
     name: '',
@@ -653,7 +654,8 @@ export default function DoctorScheduleEntry() {
                     <label className="text-sm font-bold text-slate-500 ml-1">วันที่หยุด</label>
                     <input 
                       type="date"
-                      id="holidayDate"
+                      value={holidayFormData.date}
+                      onChange={(e) => setHolidayFormData({ ...holidayFormData, date: e.target.value })}
                       className="w-full px-5 py-3.5 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-bold"
                     />
                   </div>
@@ -662,18 +664,16 @@ export default function DoctorScheduleEntry() {
                     <div className="flex gap-2">
                       <input 
                         type="text"
-                        id="holidayName"
                         placeholder="เช่น วันสงกรานต์"
+                        value={holidayFormData.name}
+                        onChange={(e) => setHolidayFormData({ ...holidayFormData, name: e.target.value })}
                         className="flex-grow px-5 py-3.5 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-bold"
                       />
                       <button 
                         onClick={async () => {
-                          const dateInput = document.getElementById('holidayDate') as HTMLInputElement;
-                          const nameInput = document.getElementById('holidayName') as HTMLInputElement;
-                          if (dateInput.value && nameInput.value) {
-                            await addHoliday({ date: dateInput.value, name: nameInput.value });
-                            dateInput.value = '';
-                            nameInput.value = '';
+                          if (holidayFormData.date && holidayFormData.name) {
+                            await addHoliday(holidayFormData);
+                            setHolidayFormData({ date: '', name: '' });
                           } else {
                             alert('กรุณากรอกข้อมูลให้ครบถ้วน');
                           }

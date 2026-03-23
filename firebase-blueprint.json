@@ -57,7 +57,19 @@
         "clinic": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name", "clinic"]
+      "required": ["name", "clinic"],
+      "createdAt": { "type": "string", "format": "date-time" }
+    },
+    "Holiday": {
+      "title": "Holiday",
+      "description": "A public holiday or hospital holiday",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "name": { "type": "string" }
+      },
+      "required": ["date", "name"]
     }
   },
   "firestore": {
@@ -72,6 +84,10 @@
     "doctors": {
       "schema": "Doctor",
       "description": "Collection of doctors"
+    },
+    "holidays": {
+      "schema": "Holiday",
+      "description": "Collection of public holidays"
     }
   }
 }
