@@ -25,6 +25,12 @@ export interface DoctorSchedule {
   exclusions?: string[];
 }
 
+export interface Holiday {
+  id: string;
+  date: string; // ISO yyyy-MM-dd
+  name: string;
+}
+
 enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -102,5 +108,53 @@ export const deleteDoctorSchedule = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, `${COLLECTION_NAME}/${id}`);
+  }
+};
+
+const HOLIDAYS_COLLECTION = 'holidays';
+
+export const getHolidays = async (): Promise<Holiday[]> => {
+  try {
+    const q = query(collection(db, HOLIDAYS_COLLECTION));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id
+    })) as Holiday[];
+  } catch (error) {
+    handleFirestoreError(error, OperationType.LIST, HOLIDAYS_COLLECTION);
+    return [];
+  }
+};
+
+export const subscribeToHolidays = (callback: (data: Holiday[]) => void) => {
+  const q = query(collection(db, HOLIDAYS_COLLECTION));
+  return onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id
+    })) as Holiday[];
+    callback(data);
+  }, (error) => {
+    handleFirestoreError(error, OperationType.LIST, HOLIDAYS_COLLECTION);
+  });
+};
+
+export const addHoliday = async (data: Omit<Holiday, 'id'>): Promise<Holiday> => {
+  try {
+    const docRef = await addDoc(collection(db, HOLIDAYS_COLLECTION), data);
+    return { ...data, id: docRef.id } as Holiday;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.CREATE, HOLIDAYS_COLLECTION);
+    throw error;
+  }
+};
+
+export const deleteHoliday = async (id: string): Promise<void> => {
+  try {
+    const docRef = doc(db, HOLIDAYS_COLLECTION, id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, `${HOLIDAYS_COLLECTION}/${id}`);
   }
 };

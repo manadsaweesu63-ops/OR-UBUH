@@ -28,6 +28,8 @@ export interface SurgerySchedule {
   procedure: string;
   surgeryType: 'Minor' | 'Major';
   department: string;
+  caseSetter?: string;
+  caseReceiver?: string;
   notes?: string;
   status?: PatientStatus;
   createdAt?: string;

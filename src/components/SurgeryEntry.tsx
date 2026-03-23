@@ -42,6 +42,8 @@ export default function SurgeryEntry() {
     doctor: 'กรุณาเลือก',
     room: ROOMS[0],
     department: DEPARTMENTS[0],
+    caseSetter: '',
+    caseReceiver: '',
     notes: ''
   });
 
@@ -330,6 +332,30 @@ export default function SurgeryEntry() {
                           {DEPARTMENTS.map(dept => <option key={dept} value={dept}>{dept}</option>)}
                         </select>
                       </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-500 ml-1">ชื่อผู้ Set Case</label>
+                          <input 
+                            name="caseSetter"
+                            autoComplete="off"
+                            value={formData.caseSetter}
+                            onChange={handleChange}
+                            placeholder="ระบุชื่อผู้แจ้งเซ็ตเคส"
+                            className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-500 ml-1">ชื่อผู้รับ Set Case</label>
+                          <input 
+                            name="caseReceiver"
+                            autoComplete="off"
+                            value={formData.caseReceiver}
+                            onChange={handleChange}
+                            placeholder="ระบุชื่อผู้รับเซ็ตเคส"
+                            className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
+                          />
+                        </div>
+                      </div>
                       <div className="space-y-2 md:col-span-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">หมายเหตุ (ถ้ามี)</label>
                         <textarea 
@@ -420,6 +446,14 @@ export default function SurgeryEntry() {
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ภาควิชา</p>
                     <p className="text-xl font-black text-slate-800">{formData.department}</p>
                   </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ผู้ Set Case</p>
+                    <p className="text-xl font-black text-slate-800">{formData.caseSetter || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ผู้รับ Set Case</p>
+                    <p className="text-xl font-black text-slate-800">{formData.caseReceiver || '-'}</p>
+                  </div>
                   {formData.notes && (
                     <div className="space-y-1 md:col-span-2">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">หมายเหตุ</p>
@@ -479,6 +513,8 @@ export default function SurgeryEntry() {
                       doctor: doctors.length > 0 ? doctors[0].name : '',
                       room: ROOMS[0],
                       department: DEPARTMENTS[0],
+                      caseSetter: '',
+                      caseReceiver: '',
                       notes: ''
                     });
                     setStep('input');

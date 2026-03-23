@@ -29,7 +29,7 @@ import {
   setMonth
 } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { subscribeToDoctorSchedules, DoctorSchedule as DoctorScheduleType } from '../services/doctorService';
+import { subscribeToDoctorSchedules, DoctorSchedule as DoctorScheduleType, Holiday, subscribeToHolidays } from '../services/doctorService';
 
 // Clinic configurations with pastel colors
 const CLINICS = {
@@ -54,12 +54,19 @@ export default function DoctorSchedule() {
   const [selectedClinic, setSelectedClinic] = useState('ทั้งหมด');
   const [selectedDoctor, setSelectedDoctor] = useState('ทั้งหมด');
   const [doctors, setDoctors] = useState<DoctorScheduleType[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToDoctorSchedules((data) => {
+    const unsubscribeSchedules = subscribeToDoctorSchedules((data) => {
       setDoctors(data);
     });
-    return () => unsubscribe();
+    const unsubscribeHolidays = subscribeToHolidays((data) => {
+      setHolidays(data);
+    });
+    return () => {
+      unsubscribeSchedules();
+      unsubscribeHolidays();
+    };
   }, []);
 
   const monthStart = startOfMonth(currentDate);
@@ -81,6 +88,10 @@ export default function DoctorSchedule() {
     const dayOfWeek = getDay(day);
     const dateString = format(day, 'yyyy-MM-dd');
     
+    // Check if this day is a holiday
+    const isHoliday = holidays.some(h => h.date === dateString);
+    if (isHoliday) return [];
+
     return filteredDoctors
       .filter(doc => !(doc.exclusions?.includes(dateString)))
       .flatMap(doc => {
@@ -228,6 +239,8 @@ export default function DoctorSchedule() {
               const events = getDayEvents(day);
               const isCurrentMonth = isSameMonth(day, monthStart);
               const isToday = isSameDay(day, new Date());
+              const dateString = format(day, 'yyyy-MM-dd');
+              const holiday = holidays.find(h => h.date === dateString);
 
               return (
                 <div 
@@ -235,7 +248,8 @@ export default function DoctorSchedule() {
                   className={cn(
                     "min-h-[140px] p-2 border-r border-b border-slate-50 last:border-r-0 flex flex-col gap-1 transition-colors",
                     !isCurrentMonth && "bg-slate-50/50",
-                    isToday && "bg-indigo-50/30"
+                    isToday && "bg-indigo-50/30",
+                    holiday && "bg-rose-50/20"
                   )}
                 >
                   <div className="flex justify-between items-center mb-1">
@@ -246,6 +260,11 @@ export default function DoctorSchedule() {
                     )}>
                       {format(day, 'd')}
                     </span>
+                    {holiday && (
+                      <span className="text-[9px] font-black text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-md truncate max-w-[70%]">
+                        {holiday.name}
+                      </span>
+                    )}
                   </div>
                   
                   <div className="flex flex-col gap-1 overflow-y-auto max-h-[100px] scrollbar-hide">

@@ -695,6 +695,20 @@ export default function SurgerySchedulePage() {
                                           placeholder="อายุ"
                                         />
                                       </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <input 
+                                          value={editForm.caseSetter || ''}
+                                          onChange={(e) => setEditForm({ ...editForm, caseSetter: e.target.value })}
+                                          className="text-sm font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+                                          placeholder="ชื่อผู้ Set Case"
+                                        />
+                                        <input 
+                                          value={editForm.caseReceiver || ''}
+                                          onChange={(e) => setEditForm({ ...editForm, caseReceiver: e.target.value })}
+                                          className="text-sm font-bold text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2"
+                                          placeholder="ชื่อผู้รับ Set Case"
+                                        />
+                                      </div>
                                       <textarea
                                         value={editForm.notes || ''}
                                         onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
@@ -710,11 +724,23 @@ export default function SurgerySchedulePage() {
                                         {item.patientTitle}{item.patientName}
                                         <span className="ml-3 text-slate-400 font-medium">อายุ {item.patientAge} ปี</span>
                                       </p>
-                                      {item.patientPhone && (
-                                        <p className="text-sm font-bold text-slate-400 flex items-center gap-1">
-                                          <Clock className="w-3 h-3" /> เบอร์โทร: {item.patientPhone}
-                                        </p>
-                                      )}
+                                      <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                        {item.patientPhone && (
+                                          <p className="text-sm font-bold text-slate-400 flex items-center gap-1">
+                                            เบอร์โทร: {item.patientPhone}
+                                          </p>
+                                        )}
+                                        {item.caseSetter && (
+                                          <p className="text-sm font-bold text-indigo-500 flex items-center gap-1">
+                                            ผู้ Set Case: {item.caseSetter}
+                                          </p>
+                                        )}
+                                        {item.caseReceiver && (
+                                          <p className="text-sm font-bold text-emerald-500 flex items-center gap-1">
+                                            ผู้รับ Set Case: {item.caseReceiver}
+                                          </p>
+                                        )}
+                                      </div>
                                       {item.notes && (
                                         <p className="text-sm font-medium text-slate-400 italic bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 w-fit">
                                           หมายเหตุ: {item.notes}

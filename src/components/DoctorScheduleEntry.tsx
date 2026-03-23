@@ -30,7 +30,18 @@ import {
   setYear
 } from 'date-fns';
 import { th } from 'date-fns/locale';
-import { addDoctorSchedule, getDoctorSchedules, updateDoctorSchedule, deleteDoctorSchedule, DoctorSchedule, subscribeToDoctorSchedules } from '../services/doctorService';
+import { 
+  addDoctorSchedule, 
+  getDoctorSchedules, 
+  updateDoctorSchedule, 
+  deleteDoctorSchedule, 
+  DoctorSchedule, 
+  subscribeToDoctorSchedules,
+  Holiday,
+  addHoliday,
+  deleteHoliday,
+  subscribeToHolidays
+} from '../services/doctorService';
 import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
 import StaffHeader from './StaffHeader';
 
@@ -55,8 +66,9 @@ const DAYS = [
 
 export default function DoctorScheduleEntry() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'list' | 'input' | 'success'>('list');
+  const [step, setStep] = useState<'list' | 'input' | 'success' | 'holidays'>('list');
   const [schedules, setSchedules] = useState<DoctorSchedule[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
   
@@ -86,10 +98,12 @@ export default function DoctorScheduleEntry() {
     const unsubscribeDoctors = subscribeToDoctors((data) => {
       setDoctorsList(data);
     });
+    const unsubscribeHolidays = subscribeToHolidays(setHolidays);
     
     return () => {
       unsubscribeSchedules();
       unsubscribeDoctors();
+      unsubscribeHolidays();
     };
   }, [editingId, formData.name]);
 
@@ -219,21 +233,30 @@ export default function DoctorScheduleEntry() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <button 
-              onClick={() => step === 'input' ? setStep('list') : navigate('/login')}
+              onClick={() => (step === 'input' || step === 'holidays') ? setStep('list') : navigate('/login')}
               className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors font-medium"
             >
               <ArrowLeft className="w-5 h-5" />
-              {step === 'input' ? 'กลับไปหน้ารายการ' : 'กลับหน้าเมนูเจ้าหน้าที่'}
+              {(step === 'input' || step === 'holidays') ? 'กลับไปหน้ารายการ' : 'กลับหน้าเมนูเจ้าหน้าที่'}
             </button>
           
           {step === 'list' && (
-            <button 
-              onClick={resetForm}
-              className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-bold rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100"
-            >
-              <Plus className="w-5 h-5" />
-              เพิ่มแพทย์ใหม่
-            </button>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setStep('holidays')}
+                className="flex items-center gap-2 px-6 py-3 bg-rose-500 text-white font-bold rounded-2xl hover:bg-rose-600 transition-all shadow-lg shadow-rose-100"
+              >
+                <CalendarIcon className="w-5 h-5" />
+                จัดการวันหยุด
+              </button>
+              <button 
+                onClick={resetForm}
+                className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-bold rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100"
+              >
+                <Plus className="w-5 h-5" />
+                เพิ่มแพทย์ใหม่
+              </button>
+            </div>
           )}
         </div>
 
@@ -603,6 +626,102 @@ export default function DoctorScheduleEntry() {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          )}
+
+          {step === 'holidays' && (
+            <motion.div
+              key="holidays"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 md:p-12"
+            >
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600">
+                  <CalendarIcon className="w-8 h-8" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black text-slate-800">จัดการวันหยุดนักขัตฤกษ์</h1>
+                  <p className="text-slate-500">ระบุวันหยุดที่แพทย์จะไม่มาออกตรวจ (มีผลกับแพทย์ทุกคน)</p>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-500 ml-1">วันที่หยุด</label>
+                    <input 
+                      type="date"
+                      id="holidayDate"
+                      className="w-full px-5 py-3.5 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-bold"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-500 ml-1">ชื่อวันหยุด</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text"
+                        id="holidayName"
+                        placeholder="เช่น วันสงกรานต์"
+                        className="flex-grow px-5 py-3.5 bg-white rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-bold"
+                      />
+                      <button 
+                        onClick={async () => {
+                          const dateInput = document.getElementById('holidayDate') as HTMLInputElement;
+                          const nameInput = document.getElementById('holidayName') as HTMLInputElement;
+                          if (dateInput.value && nameInput.value) {
+                            await addHoliday({ date: dateInput.value, name: nameInput.value });
+                            dateInput.value = '';
+                            nameInput.value = '';
+                          } else {
+                            alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                          }
+                        }}
+                        className="px-6 bg-rose-500 text-white font-bold rounded-2xl hover:bg-rose-600 transition-all shadow-lg shadow-rose-100"
+                      >
+                        เพิ่ม
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-700">รายการวันหยุด</h3>
+                  {holidays.length === 0 ? (
+                    <div className="text-center py-12 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                      <p className="text-slate-400 font-bold">ยังไม่มีข้อมูลวันหยุด</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {holidays.sort((a, b) => a.date.localeCompare(b.date)).map(holiday => (
+                        <div key={holiday.id} className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-3xl shadow-sm">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 font-black">
+                              <CalendarIcon className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <p className="font-black text-slate-800">{holiday.name}</p>
+                              <p className="text-sm text-slate-500 font-bold">
+                                {(() => {
+                                  const d = parseISO(holiday.date);
+                                  return `${format(d, 'd MMMM', { locale: th })} ${d.getFullYear() + 543}`;
+                                })()}
+                              </p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => deleteHoliday(holiday.id)}
+                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           )}
 
