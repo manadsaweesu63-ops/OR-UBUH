@@ -548,12 +548,27 @@ export default function SurgerySchedulePage() {
                               <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">เวลาผ่าตัด</p>
                                 {editingId === item.id ? (
-                                  <input 
-                                    type="time"
-                                    value={editForm.time}
-                                    onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
-                                    className="font-black text-slate-700 text-xl bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                  />
+                                  <div className="flex items-center gap-1">
+                                    <select 
+                                      value={editForm.time.split(':')[0]}
+                                      onChange={(e) => setEditForm({ ...editForm, time: `${e.target.value}:${editForm.time.split(':')[1]}` })}
+                                      className="font-black text-slate-700 text-lg bg-slate-50 border border-slate-200 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    >
+                                      {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(h => (
+                                        <option key={h} value={h}>{h}</option>
+                                      ))}
+                                    </select>
+                                    <span className="font-bold text-slate-400">:</span>
+                                    <select 
+                                      value={editForm.time.split(':')[1]}
+                                      onChange={(e) => setEditForm({ ...editForm, time: `${editForm.time.split(':')[0]}:${e.target.value}` })}
+                                      className="font-black text-slate-700 text-lg bg-slate-50 border border-slate-200 rounded-lg px-1 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    >
+                                      {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                      ))}
+                                    </select>
+                                  </div>
                                 ) : (
                                   <span className="font-black text-slate-700 text-2xl">{item.time} น.</span>
                                 )}

@@ -253,15 +253,33 @@ export default function SurgeryEntry() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-500 ml-1">เวลาผ่าตัด</label>
-                        <input 
-                          required
-                          type="time"
-                          name="time"
-                          value={formData.time}
-                          onChange={handleChange}
-                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
-                        />
+                        <label className="text-sm font-bold text-slate-500 ml-1">เวลาผ่าตัด (24 ชม.)</label>
+                        <div className="flex items-center gap-2">
+                          <div className="relative flex-1">
+                            <select 
+                              value={formData.time.split(':')[0]}
+                              onChange={(e) => setFormData(prev => ({ ...prev, time: `${e.target.value}:${prev.time.split(':')[1]}` }))}
+                              className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none text-center"
+                            >
+                              {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map(h => (
+                                <option key={h} value={h}>{h}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <span className="font-bold text-slate-400">:</span>
+                          <div className="relative flex-1">
+                            <select 
+                              value={formData.time.split(':')[1]}
+                              onChange={(e) => setFormData(prev => ({ ...prev, time: `${prev.time.split(':')[0]}:${e.target.value}` }))}
+                              className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none text-center"
+                            >
+                              {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => (
+                                <option key={m} value={m}>{m}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <span className="font-bold text-slate-500 ml-1">น.</span>
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">แพทย์เจ้าของไข้</label>
