@@ -266,7 +266,9 @@ export default function StatusBoard() {
                   {format(currentTime, 'HH:mm:ss')}
                 </span>
                 <span className="text-slate-400 text-sm border-l pl-3 border-slate-200">
-                  {format(currentTime, 'd MMM yyyy', { locale: th })}
+                  {(() => {
+                    return `${format(currentTime, 'd MMM', { locale: th })} ${currentTime.getFullYear() + 543}`;
+                  })()}
                 </span>
               </div>
             </header>
@@ -582,7 +584,7 @@ export default function StatusBoard() {
 
       {/* Footer */}
       <footer className="mt-16 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
-        <p>© 2026 ระบบติดตามสถานะห้องผ่าตัดอัจฉริยะ | โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</p>
+        <p>© 2569 ระบบติดตามสถานะห้องผ่าตัดอัจฉริยะ | โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</p>
         <p className="mt-1">วิทยาลัยแพทยศาสตร์และการสาธารณสุข มหาวิทยาลัยอุบลราชธานี</p>
       </footer>
     </div>

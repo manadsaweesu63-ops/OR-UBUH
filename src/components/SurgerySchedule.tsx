@@ -57,7 +57,7 @@ const DEFAULT_COLOR = {
 };
 
 const PASTEL_COLORS = [
-  { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', bar: 'bg-blue-500', shadow: 'shadow-blue-100' },
+  { bg: 'bg-French lilac-50', text: 'text-blue-700', border: 'border-blue-200', bar: 'bg-blue-500', shadow: 'shadow-blue-100' },
   { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', bar: 'bg-emerald-500', shadow: 'shadow-emerald-100' },
   { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', bar: 'bg-amber-500', shadow: 'shadow-amber-100' },
   { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', bar: 'bg-rose-500', shadow: 'shadow-rose-100' },
@@ -331,7 +331,7 @@ export default function SurgerySchedulePage() {
                     {searchTerm 
                       ? `"${searchTerm}"`
                       : (selectedDoctor === 'all' 
-                        ? format(currentMonth, 'MMMM yyyy', { locale: th })
+                        ? `${format(currentMonth, 'MMMM', { locale: th })} ${currentMonth.getFullYear() + 543}`
                         : selectedDoctor)
                     }
                   </h3>
@@ -485,7 +485,10 @@ export default function SurgerySchedulePage() {
                     <div className="flex items-center gap-3">
                       <div className="h-px bg-slate-100 flex-grow" />
                       <span className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-sm font-black">
-                        {format(parseISO(date), 'EEEEที่ d MMMM yyyy', { locale: th })}
+                        {(() => {
+                          const d = parseISO(date);
+                          return `${format(d, 'EEEEที่ d MMMM', { locale: th })} ${d.getFullYear() + 543}`;
+                        })()}
                       </span>
                       <div className="h-px bg-slate-100 flex-grow" />
                     </div>

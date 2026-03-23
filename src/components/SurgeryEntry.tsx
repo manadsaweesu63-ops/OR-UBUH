@@ -177,7 +177,7 @@ export default function SurgeryEntry() {
                           autoComplete="off"
                           value={formData.patientName}
                           onChange={handleChange}
-                          placeholder="ระบุชื่อ-นามสกุลคนไข้"
+                          placeholder="ระบุชื่อ-นามสกุลผู้ป่วย"
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
@@ -253,7 +253,7 @@ export default function SurgeryEntry() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-500 ml-1">เวลาผ่าตัด (24 ชม.)</label>
+                        <label className="text-sm font-bold text-slate-500 ml-1">เวลาผ่าตัด</label>
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <select 
@@ -398,7 +398,10 @@ export default function SurgeryEntry() {
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">วัน-เวลา</p>
                     <p className="text-xl font-black text-slate-800">
-                      {format(parseISO(formData.date), 'd MMM yyyy', { locale: th })} | {formData.time} น.
+                      {(() => {
+                        const d = parseISO(formData.date);
+                        return `${format(d, 'd MMM', { locale: th })} ${d.getFullYear() + 543}`;
+                      })()} | {formData.time} น.
                     </p>
                   </div>
                   <div className="space-y-1">

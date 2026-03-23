@@ -146,7 +146,7 @@ export default function Home() {
       <footer className="bg-white border-t border-slate-100 py-10">
         <div className="max-w-5xl mx-auto px-4 text-center">
           <p className="text-slate-400 text-sm">
-            © 2026 กลุ่มงานห้องผ่าตัดและวิสัญญี โรงพยาบาลมหาวิทยาลัยอุบลราชธานี <br />
+            © 2569 กลุ่มงานห้องผ่าตัดและวิสัญญี โรงพยาบาลมหาวิทยาลัยอุบลราชธานี <br />
             วิทยาลัยแพทยศาสตร์และการสาธารณสุข มหาวิทยาลัยอุบลราชธานี
           </p>
         </div>

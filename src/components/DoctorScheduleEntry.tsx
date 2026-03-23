@@ -298,7 +298,10 @@ export default function DoctorScheduleEntry() {
                               <div className="flex flex-wrap gap-1">
                                 {schedule.specificDates.slice(0, 3).map((d, i) => (
                                   <span key={i} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-                                    {format(parseISO(d.date), 'd MMM yy', { locale: th })}
+                                    {(() => {
+                                      const dateObj = parseISO(d.date);
+                                      return `${format(dateObj, 'd MMM', { locale: th })} ${dateObj.getFullYear() + 543}`;
+                                    })()}
                                   </span>
                                 ))}
                                 {schedule.specificDates.length > 3 && <span className="text-[10px] text-slate-400">...</span>}
@@ -477,7 +480,7 @@ export default function DoctorScheduleEntry() {
                           <ChevronLeft className="w-5 h-5 text-slate-400" />
                         </button>
                         <span className="font-bold text-slate-700">
-                          {format(currentMonth, 'MMMM yyyy', { locale: th })}
+                          {`${format(currentMonth, 'MMMM', { locale: th })} ${currentMonth.getFullYear() + 543}`}
                         </span>
                         <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-white rounded-xl transition-colors">
                           <ChevronRight className="w-5 h-5 text-slate-400" />
@@ -521,18 +524,21 @@ export default function DoctorScheduleEntry() {
                       </div>
                     </div>
 
-                    {formData.specificDates && formData.specificDates.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.specificDates.map((d, i) => (
-                          <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 font-bold text-xs">
-                            {format(parseISO(d.date), 'd MMM yyyy', { locale: th })} ({d.time})
-                            <button type="button" onClick={() => toggleSpecificDate(parseISO(d.date))} className="hover:text-blue-800">
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                      {formData.specificDates && formData.specificDates.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.specificDates.map((d, i) => (
+                            <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 font-bold text-xs">
+                              {(() => {
+                                const dateObj = parseISO(d.date);
+                                return `${format(dateObj, 'd MMM', { locale: th })} ${dateObj.getFullYear() + 543}`;
+                              })()} ({d.time})
+                              <button type="button" onClick={() => toggleSpecificDate(parseISO(d.date))} className="hover:text-blue-800">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                   </div>
 
                   {/* Exclusions Section */}
@@ -556,7 +562,10 @@ export default function DoctorScheduleEntry() {
                     <div className="flex flex-wrap gap-2">
                       {formData.exclusions?.map((date, i) => (
                         <div key={i} className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 rounded-full border border-rose-100 font-bold text-sm">
-                          {format(parseISO(date), 'd MMM yyyy', { locale: th })}
+                          {(() => {
+                            const dateObj = parseISO(date);
+                            return `${format(dateObj, 'd MMM', { locale: th })} ${dateObj.getFullYear() + 543}`;
+                          })()}
                           <button 
                             type="button"
                             onClick={() => handleRemoveExclusion(date)}
