@@ -23,6 +23,7 @@ import StaffHeader from './StaffHeader';
 const ROOMS = ['กรุณาเลือก','Minor 1', 'Minor 2', 'Major 1'];
 const SURGERY_TYPES = ['กรุณาเลือก','Minor', 'Major'];
 const DEPARTMENTS = ['กรุณาเลือก','Plastic Surgery', 'General Surgery', 'Orthopedic', 'Urology', 'ENT', 'Ophthalmology'];
+const PATIENT_TITLES = ['กรุณาเลือก', 'นาย', 'นาง', 'นางสาว', 'เด็กหญิง', 'เด็กชาย'];
 
 export default function SurgeryEntry() {
   const navigate = useNavigate();
@@ -30,8 +31,10 @@ export default function SurgeryEntry() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [formData, setFormData] = useState({
     patientHN: '',
+    patientTitle: PATIENT_TITLES[0],
     patientName: '',
     patientAge: '',
+    patientPhone: '',
     procedure: '',
     surgeryType: SURGERY_TYPES[0] as 'Minor' | 'Major',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -65,7 +68,8 @@ export default function SurgeryEntry() {
     if (formData.doctor === 'กรุณาเลือก' || 
         formData.room === 'กรุณาเลือก' || 
         formData.surgeryType === 'กรุณาเลือก' || 
-        formData.department === 'กรุณาเลือก') {
+        formData.department === 'กรุณาเลือก' ||
+        formData.patientTitle === 'กรุณาเลือก') {
       alert('กรุณาเลือกข้อมูลให้ครบถ้วน');
       return;
     }
@@ -156,7 +160,19 @@ export default function SurgeryEntry() {
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
-                      <div className="md:col-span-2 space-y-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-500 ml-1">คำนำหน้า</label>
+                        <select 
+                          required
+                          name="patientTitle"
+                          value={formData.patientTitle}
+                          onChange={handleChange}
+                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
+                        >
+                          {PATIENT_TITLES.map(title => <option key={title} value={title}>{title}</option>)}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">ชื่อ-นามสกุล</label>
                         <input 
                           required
@@ -178,6 +194,19 @@ export default function SurgeryEntry() {
                           value={formData.patientAge}
                           onChange={handleChange}
                           placeholder="เช่น 45"
+                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
+                        />
+                      </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <label className="text-sm font-bold text-slate-500 ml-1">เบอร์โทรศัพท์</label>
+                        <input 
+                          required
+                          type="tel"
+                          name="patientPhone"
+                          autoComplete="off"
+                          value={formData.patientPhone}
+                          onChange={handleChange}
+                          placeholder="เช่น 0812345678"
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
@@ -236,7 +265,7 @@ export default function SurgeryEntry() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-500 ml-1">ศัลยแพทย์ผู้ผ่าตัด</label>
+                        <label className="text-sm font-bold text-slate-500 ml-1">แพทย์เจ้าของไข้</label>
                         <select 
                           name="doctor"
                           value={formData.doctor}
@@ -334,11 +363,15 @@ export default function SurgeryEntry() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ชื่อ-นามสกุล</p>
-                    <p className="text-xl font-black text-slate-800">{formData.patientName}</p>
+                    <p className="text-xl font-black text-slate-800">{formData.patientTitle}{formData.patientName}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">อายุ</p>
                     <p className="text-xl font-black text-slate-800">{formData.patientAge} ปี</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">เบอร์โทรศัพท์</p>
+                    <p className="text-xl font-black text-slate-800">{formData.patientPhone}</p>
                   </div>
                   <div className="space-y-1 md:col-span-2">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">หัตถการ/ผ่าตัด</p>
@@ -359,7 +392,7 @@ export default function SurgeryEntry() {
                     <p className="text-xl font-black text-slate-800">{formData.room}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ศัลยแพทย์</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">แพทย์เจ้าของไข้</p>
                     <p className="text-xl font-black text-slate-800">{formData.doctor}</p>
                   </div>
                   <div className="space-y-1">
@@ -404,18 +437,20 @@ export default function SurgeryEntry() {
                 <CheckCircle2 className="w-16 h-16" />
               </div>
               <h1 className="text-4xl font-black text-slate-800 mb-4">บันทึกข้อมูลสำเร็จ!</h1>
-              <p className="text-slate-500 text-lg mb-12">
-                ข้อมูลการผ่าตัดของ <span className="font-bold text-slate-800">{formData.patientName}</span> <br />
-                ได้ถูกเพิ่มลงในตารางเรียบร้อยแล้ว
-              </p>
+                  <p className="text-slate-500 text-lg mb-12">
+                    ข้อมูลการผ่าตัดของ <span className="font-bold text-slate-800">{formData.patientTitle}{formData.patientName}</span> <br />
+                    ได้ถูกเพิ่มลงในตารางเรียบร้อยแล้ว
+                  </p>
 
               <div className="flex flex-col md:flex-row gap-4 justify-center">
                 <button 
                   onClick={() => {
                     setFormData({
                       patientHN: '',
+                      patientTitle: PATIENT_TITLES[0],
                       patientName: '',
                       patientAge: '',
+                      patientPhone: '',
                       procedure: '',
                       surgeryType: SURGERY_TYPES[0] as 'Minor' | 'Major',
                       date: format(new Date(), 'yyyy-MM-dd'),

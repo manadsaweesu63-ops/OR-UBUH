@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2, LogOut, Clock, Activity } from 'lucide-react';
+import { Lock, ArrowLeft, AlertCircle, ShieldCheck, ClipboardList, Stethoscope, User, Loader2, LogOut, Clock, Activity, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 
 export default function Login() {
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isStaff') === 'true');
@@ -58,13 +59,20 @@ export default function Login() {
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="relative">
                 <input 
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="รหัสผ่าน"
-                  className={`w-full px-6 py-4 bg-slate-50 rounded-2xl border ${error ? 'border-rose-500 ring-2 ring-rose-500/10' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-center text-xl tracking-widest`}
+                  className={`w-full px-6 py-4 bg-slate-50 rounded-2xl border ${error ? 'border-rose-500 ring-2 ring-rose-500/10' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-center text-xl tracking-widest pr-14`}
                   autoFocus
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
                 {error && (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
