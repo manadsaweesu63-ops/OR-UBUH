@@ -12,6 +12,7 @@ import {
   getDocFromServer
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { PatientStatus } from '../types';
 
 export interface SurgerySchedule {
   id: string;
@@ -19,14 +20,16 @@ export interface SurgerySchedule {
   time: string;
   room: string;
   doctor: string;
+  patientTitle: string;
   patientName: string;
   patientHN: string;
   patientAge: string;
+  patientPhone: string;
   procedure: string;
   surgeryType: 'Minor' | 'Major';
   department: string;
   notes?: string;
-  status?: 'preparing' | 'confirmed' | 'surgery' | 'recovery' | 'completed' | 'canceled';
+  status?: PatientStatus;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -127,7 +130,7 @@ export const addSurgerySchedule = async (data: Omit<SurgerySchedule, 'id'>): Pro
   try {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...data,
-      status: data.status || 'preparing',
+      status: data.status || 'unconfirmed',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });

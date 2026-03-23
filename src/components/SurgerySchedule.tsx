@@ -56,53 +56,27 @@ const DEFAULT_COLOR = {
   shadow: 'shadow-slate-100'
 };
 
-const DOCTOR_COLORS_MAP: { [key: string]: { bg: string, text: string, border: string, bar: string, shadow: string } } = {
-  'อ.นพ. ดิน ตังคโณบล': { 
-    bg: 'bg-blue-50', 
-    text: 'text-blue-700', 
-    border: 'border-blue-200', 
-    bar: 'bg-blue-500',
-    shadow: 'shadow-blue-100'
-  },
-  'อ.นพ. ภาณุวัตร สุธรรมวงศ์': { 
-    bg: 'bg-emerald-50', 
-    text: 'text-emerald-700', 
-    border: 'border-emerald-200', 
-    bar: 'bg-emerald-500',
-    shadow: 'shadow-emerald-100'
-  },
-  'อ.นพ. วัฒนา พรรณพานิช': { 
-    bg: 'bg-amber-50', 
-    text: 'text-amber-700', 
-    border: 'border-amber-200', 
-    bar: 'bg-amber-500',
-    shadow: 'shadow-amber-100'
-  },
-  'อ.นพ. เกริก สุวรรณกาฬ': { 
-    bg: 'bg-rose-50', 
-    text: 'text-rose-700', 
-    border: 'border-rose-200', 
-    bar: 'bg-rose-500',
-    shadow: 'shadow-rose-100'
-  },
-  'อ.นพ. สิทธิชัย ทองแสง': { 
-    bg: 'bg-indigo-50', 
-    text: 'text-indigo-700', 
-    border: 'border-indigo-200', 
-    bar: 'bg-indigo-500',
-    shadow: 'shadow-indigo-100'
-  },
-  'อ.พญ. นวรัตน์ เกริกอรุณ': { 
-    bg: 'bg-purple-50', 
-    text: 'text-purple-700', 
-    border: 'border-purple-200', 
-    bar: 'bg-purple-500',
-    shadow: 'shadow-purple-100'
-  },
-};
+const PASTEL_COLORS = [
+  { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', bar: 'bg-blue-500', shadow: 'shadow-blue-100' },
+  { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', bar: 'bg-emerald-500', shadow: 'shadow-emerald-100' },
+  { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', bar: 'bg-amber-500', shadow: 'shadow-amber-100' },
+  { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', bar: 'bg-rose-500', shadow: 'shadow-rose-100' },
+  { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', bar: 'bg-indigo-500', shadow: 'shadow-indigo-100' },
+  { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', bar: 'bg-purple-500', shadow: 'shadow-purple-100' },
+  { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200', bar: 'bg-cyan-500', shadow: 'shadow-cyan-100' },
+  { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', bar: 'bg-orange-500', shadow: 'shadow-orange-100' },
+  { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200', bar: 'bg-teal-500', shadow: 'shadow-teal-100' },
+  { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', bar: 'bg-pink-500', shadow: 'shadow-pink-100' },
+];
 
 const getDoctorColor = (name: string) => {
-  return DOCTOR_COLORS_MAP[name] || DEFAULT_COLOR;
+  if (!name || name === 'all') return DEFAULT_COLOR;
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % PASTEL_COLORS.length;
+  return PASTEL_COLORS[index];
 };
 
 export default function SurgerySchedulePage() {
@@ -470,22 +444,22 @@ export default function SurgerySchedulePage() {
                         {daySurgeries.slice(0, 3).map(s => {
                           const config = getDoctorColor(s.doctor);
                           return (
-                            <div 
-                              key={s.id}
-                              onClick={() => {
-                                setViewMode('list');
-                                setSearchTerm(s.patientHN);
-                              }}
-                              className={cn(
-                                "p-1.5 rounded-lg border shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden pl-3",
-                                config?.bg || "bg-white",
-                                config?.border || "border-slate-100",
-                                config?.text || "text-slate-700"
-                              )}
-                            >
-                              <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", config?.bar || "bg-slate-200")} />
-                              <p className="text-[13px] font-black truncate leading-tight">{s.patientName}</p>
-                              <div className="flex justify-between items-center gap-1">
+                              <div 
+                                key={s.id}
+                                onClick={() => {
+                                  setViewMode('list');
+                                  setSearchTerm(s.patientHN);
+                                }}
+                                className={cn(
+                                  "p-1.5 rounded-lg border shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden pl-3",
+                                  config?.bg || "bg-white",
+                                  config?.border || "border-slate-100",
+                                  config?.text || "text-slate-700"
+                                )}
+                              >
+                                <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", config?.bar || "bg-slate-200")} />
+                                <p className="text-[13px] font-black truncate leading-tight">{s.patientTitle}{s.patientName}</p>
+                                <div className="flex justify-between items-center gap-1">
                                 <p className="text-xs truncate font-bold opacity-80">{s.procedure}</p>
                                 <p className="text-[11px] font-black whitespace-nowrap opacity-60">{s.doctor.split(' ').slice(0, -1).join(' ')}</p>
                               </div>
@@ -612,8 +586,9 @@ export default function SurgerySchedulePage() {
                                       onChange={(e) => setEditForm({ ...editForm, status: e.target.value as any })}
                                       className="px-3 py-1 rounded-full text-xs font-black bg-slate-50 border border-slate-200"
                                     >
-                                      <option value="preparing">กำลังเตรียมการ</option>
+                                      <option value="unconfirmed">ยังไม่คอนเฟิร์ม</option>
                                       <option value="confirmed">คอนเฟิร์มแล้ว</option>
+                                      <option value="preparing">กำลังเตรียมการ</option>
                                       <option value="surgery">กำลังผ่าตัด</option>
                                       <option value="recovery">ห้องพักฟื้น</option>
                                       <option value="completed">เสร็จสิ้น</option>
@@ -637,24 +612,26 @@ export default function SurgerySchedulePage() {
                                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-sm font-black">
                                   ภาควิชา: {item.department}
                                 </span>
-                                {item.status && (
-                                  <span className={cn(
-                                    "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black",
-                                    item.status === 'preparing' && "bg-blue-50 text-blue-600 border border-blue-100",
-                                    item.status === 'confirmed' && "bg-indigo-50 text-indigo-600 border border-indigo-100",
-                                    item.status === 'surgery' && "bg-amber-50 text-amber-600 border border-amber-100",
-                                    item.status === 'recovery' && "bg-emerald-50 text-emerald-600 border border-emerald-100",
-                                    item.status === 'completed' && "bg-slate-50 text-slate-600 border border-slate-100",
-                                    item.status === 'canceled' && "bg-rose-50 text-rose-600 border border-rose-100"
-                                  )}>
-                                    {item.status === 'preparing' && 'กำลังเตรียมการ'}
-                                    {item.status === 'confirmed' && 'คอนเฟิร์มแล้ว'}
-                                    {item.status === 'surgery' && 'กำลังผ่าตัด'}
-                                    {item.status === 'recovery' && 'ห้องพักฟื้น'}
-                                    {item.status === 'completed' && 'เสร็จสิ้น'}
-                                    {item.status === 'canceled' && 'ยกเลิก'}
-                                  </span>
-                                )}
+                                  {item.status && (
+                                    <span className={cn(
+                                      "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black",
+                                      item.status === 'unconfirmed' && "bg-slate-100 text-slate-500 border border-slate-200",
+                                      item.status === 'confirmed' && "bg-indigo-50 text-indigo-600 border border-indigo-100",
+                                      item.status === 'preparing' && "bg-blue-50 text-blue-600 border border-blue-100",
+                                      item.status === 'surgery' && "bg-amber-50 text-amber-600 border border-amber-100",
+                                      item.status === 'recovery' && "bg-emerald-50 text-emerald-600 border border-emerald-100",
+                                      item.status === 'completed' && "bg-slate-50 text-slate-600 border border-slate-100",
+                                      item.status === 'canceled' && "bg-rose-50 text-rose-600 border border-rose-100"
+                                    )}>
+                                      {item.status === 'unconfirmed' && 'ยังไม่คอนเฟิร์ม'}
+                                      {item.status === 'confirmed' && 'คอนเฟิร์มแล้ว'}
+                                      {item.status === 'preparing' && 'กำลังเตรียมการ'}
+                                      {item.status === 'surgery' && 'กำลังผ่าตัด'}
+                                      {item.status === 'recovery' && 'ห้องพักฟื้น'}
+                                      {item.status === 'completed' && 'เสร็จสิ้น'}
+                                      {item.status === 'canceled' && 'ยกเลิก'}
+                                    </span>
+                                  )}
                               </div>
                               
                               <div>
@@ -712,9 +689,14 @@ export default function SurgerySchedulePage() {
                                     <div className="flex flex-col gap-1 flex-grow">
                                       <p className="text-lg font-bold text-slate-500">
                                         <span className="text-emerald-600 mr-2">HN {item.patientHN}</span>
-                                        {item.patientName}
+                                        {item.patientTitle}{item.patientName}
                                         <span className="ml-3 text-slate-400 font-medium">อายุ {item.patientAge} ปี</span>
                                       </p>
+                                      {item.patientPhone && (
+                                        <p className="text-sm font-bold text-slate-400 flex items-center gap-1">
+                                          <Clock className="w-3 h-3" /> เบอร์โทร: {item.patientPhone}
+                                        </p>
+                                      )}
                                       {item.notes && (
                                         <p className="text-sm font-medium text-slate-400 italic bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 w-fit">
                                           หมายเหตุ: {item.notes}

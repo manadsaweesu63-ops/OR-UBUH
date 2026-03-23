@@ -1,4 +1,4 @@
-export type PatientStatus = 'preparing' | 'confirmed' | 'surgery' | 'recovery' | 'completed' | 'canceled';
+export type PatientStatus = 'unconfirmed' | 'confirmed' | 'preparing' | 'surgery' | 'recovery' | 'completed' | 'canceled';
 
 export interface Patient {
   id: string;
@@ -14,17 +14,25 @@ export interface Patient {
 
 export interface SurgerySchedule {
   id: string;
+  date: string;
   time: string;
   room: string;
   doctor: string;
-  patientInitials: string;
+  patientTitle: string;
+  patientName: string;
+  patientAge: string;
+  patientHN: string;
+  patientPhone: string;
   procedure: string;
   department: string;
+  notes?: string;
+  status?: PatientStatus;
 }
 
 export const STATUS_LABELS: Record<PatientStatus, { label: string; color: string; icon: string }> = {
-  preparing: { label: 'กำลังเตรียมการ', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: 'Clock' },
+  unconfirmed: { label: 'ยังไม่คอนเฟิร์ม', color: 'bg-slate-100 text-slate-500 border-slate-200', icon: 'Clock' },
   confirmed: { label: 'คอนเฟิร์มแล้ว', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: 'CheckCircle2' },
+  preparing: { label: 'กำลังเตรียมการ', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: 'Clock' },
   surgery: { label: 'กำลังผ่าตัด', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: 'Activity' },
   recovery: { label: 'ห้องพักฟื้น', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: 'Heart' },
   completed: { label: 'เสร็จสิ้น', color: 'bg-slate-50 text-slate-600 border-slate-100', icon: 'CheckCircle2' },

@@ -147,8 +147,8 @@ export default function SurgeryEntry() {
                       <User className="w-5 h-5 text-emerald-500" />
                       ข้อมูลคนไข้
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+                      <div className="md:col-span-1 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">HN</label>
                         <input 
                           required
@@ -160,7 +160,7 @@ export default function SurgeryEntry() {
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="md:col-span-1 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">คำนำหน้า</label>
                         <select 
                           required
@@ -172,7 +172,7 @@ export default function SurgeryEntry() {
                           {PATIENT_TITLES.map(title => <option key={title} value={title}>{title}</option>)}
                         </select>
                       </div>
-                      <div className="space-y-2">
+                      <div className="md:col-span-4 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">ชื่อ-นามสกุล</label>
                         <input 
                           required
@@ -184,7 +184,7 @@ export default function SurgeryEntry() {
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="md:col-span-1 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">อายุ (ปี)</label>
                         <input 
                           required
