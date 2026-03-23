@@ -140,6 +140,13 @@ export default function SurgerySchedulePage() {
     setEditForm({});
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+
   const filteredSchedule = useMemo(() => {
     return surgeries.filter(s => {
       const matchesSearch = s.doctor.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -693,6 +700,13 @@ export default function SurgerySchedulePage() {
                                           onChange={(e) => setEditForm({ ...editForm, patientAge: e.target.value })}
                                           className="text-sm font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 w-16"
                                           placeholder="อายุ"
+                                        />
+                                        <input 
+                                          value={editForm.patientPhone || ''}
+                                          onChange={(e) => setEditForm({ ...editForm, patientPhone: formatPhoneNumber(e.target.value) })}
+                                          maxLength={12}
+                                          className="text-sm font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 flex-grow"
+                                          placeholder="เบอร์โทรศัพท์"
                                         />
                                       </div>
                                       <div className="grid grid-cols-2 gap-2">

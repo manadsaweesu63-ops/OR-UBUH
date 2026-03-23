@@ -55,9 +55,22 @@ export default function SurgeryEntry() {
     fetchDoctors();
   }, []);
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'patientPhone') {
+      const formatted = formatPhoneNumber(value);
+      setFormData(prev => ({ ...prev, [name]: formatted }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -207,7 +220,8 @@ export default function SurgeryEntry() {
                           autoComplete="off"
                           value={formData.patientPhone}
                           onChange={handleChange}
-                          placeholder="เช่น 0812345678"
+                          placeholder="เช่น 081-234-5678"
+                          maxLength={12}
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
