@@ -39,7 +39,7 @@ export default function SurgeryEntry() {
     surgeryType: SURGERY_TYPES[0] as 'Minor' | 'Major',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '09:00',
-    doctor: '',
+    doctor: 'กรุณาเลือก',
     room: ROOMS[0],
     department: DEPARTMENTS[0],
     notes: ''
@@ -49,9 +49,6 @@ export default function SurgeryEntry() {
     const fetchDoctors = async () => {
       const data = await getDoctors();
       setDoctors(data);
-      if (data.length > 0) {
-        setFormData(prev => ({ ...prev, doctor: data[0].name }));
-      }
     };
     fetchDoctors();
   }, []);
@@ -147,8 +144,8 @@ export default function SurgeryEntry() {
                       <User className="w-5 h-5 text-emerald-500" />
                       ข้อมูลคนไข้
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-                      <div className="md:col-span-1 space-y-2">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="w-full md:w-24 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">HN</label>
                         <input 
                           required
@@ -157,22 +154,22 @@ export default function SurgeryEntry() {
                           value={formData.patientHN}
                           onChange={handleChange}
                           placeholder="เช่น 123xx"
-                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
+                          className="w-full px-4 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
-                      <div className="md:col-span-1 space-y-2">
+                      <div className="w-full md:w-32 space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">คำนำหน้า</label>
                         <select 
                           required
                           name="patientTitle"
                           value={formData.patientTitle}
                           onChange={handleChange}
-                          className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
+                          className="w-full px-4 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                         >
                           {PATIENT_TITLES.map(title => <option key={title} value={title}>{title}</option>)}
                         </select>
                       </div>
-                      <div className="md:col-span-4 space-y-2">
+                      <div className="flex-grow space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">ชื่อ-นามสกุล</label>
                         <input 
                           required
@@ -184,7 +181,9 @@ export default function SurgeryEntry() {
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold"
                         />
                       </div>
-                      <div className="md:col-span-1 space-y-2">
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-500 ml-1">อายุ (ปี)</label>
                         <input 
                           required
@@ -272,6 +271,7 @@ export default function SurgeryEntry() {
                           onChange={handleChange}
                           className="w-full px-5 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-bold appearance-none"
                         >
+                          <option value="กรุณาเลือก">กรุณาเลือก</option>
                           {doctors.length === 0 ? (
                             <option value="">ไม่มีรายชื่อแพทย์ (กรุณาเพิ่มในระบบ)</option>
                           ) : (
