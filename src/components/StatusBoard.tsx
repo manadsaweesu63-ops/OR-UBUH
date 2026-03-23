@@ -440,7 +440,7 @@ export default function StatusBoard() {
           </div>
           <h3 className="font-bold text-slate-900 mb-2">ขั้นตอนการผ่าตัด</h3>
           <p className="text-slate-500 text-sm leading-relaxed">
-            โดยปกติการผ่าตัดจะใช้เวลา 1-4 ชั่วโมง ขึ้นอยู่กับประเภทของการผ่าตัด ญาติสามารถรอได้ที่จุดพักคอยชั้น 2
+            โดยปกติการผ่าตัดจะใช้เวลา 1-3 ชั่วโมง ขึ้นอยู่กับประเภทของการผ่าตัด ญาติสามารถรอได้ที่จุดพักคอยหน้ากลุ่มงานห้องผ่าตัดและวิสัญญี ชั้น 4
           </p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
