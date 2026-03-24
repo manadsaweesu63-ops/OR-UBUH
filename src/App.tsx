@@ -12,13 +12,13 @@ import StatusBoard from './components/StatusBoard';
 import Login from './components/Login';
 import AboutOR from './components/AboutOR';
 import SurgerySchedule from './components/SurgerySchedule';
+import SurgeryHistory from './components/SurgeryHistory';
 import SurgeryEntry from './components/SurgeryEntry';
 import DoctorSchedule from './components/DoctorSchedule';
 import DoctorScheduleEntry from './components/DoctorScheduleEntry';
 import DoctorManagement from './components/DoctorManagement';
 import PressRelease from './components/PressRelease';
 import MedicalArticles from './components/MedicalArticles';
-import SatisfactionSurvey from './components/SatisfactionSurvey';
 import FAQ from './components/FAQ';
 
 export default function App() {
@@ -40,13 +40,13 @@ export default function App() {
           <Route path="/status" element={<StatusBoard />} />
           <Route path="/admin/status" element={<StatusBoard />} />
           <Route path="/schedule" element={<SurgerySchedule />} />
+          <Route path="/history" element={<SurgeryHistory />} />
           <Route path="/surgery-entry" element={<SurgeryEntry />} />
           <Route path="/doctors" element={<DoctorSchedule />} />
           <Route path="/doctor-entry" element={<DoctorScheduleEntry />} />
           <Route path="/doctor-management" element={<DoctorManagement />} />
           <Route path="/pr" element={<PressRelease />} />
           <Route path="/articles" element={<MedicalArticles />} />
-          <Route path="/survey" element={<SatisfactionSurvey />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
           <Route path="/about" element={<AboutOR />} />

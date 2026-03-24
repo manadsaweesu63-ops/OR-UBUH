@@ -8,7 +8,6 @@ import {
   ChevronRight, 
   Heart, 
   Calendar, 
-  ClipboardCheck, 
   HelpCircle,
   Stethoscope,
   UserCircle
@@ -29,32 +28,11 @@ export default function Home() {
       path: '/doctors'
     },
     {
-      title: 'ติดตามสถานะการผ่าตัด',
-      desc: 'ตรวจสอบสถานะการผ่าตัดแบบเรียลไทม์สำหรับญาติผู้ป่วย',
-      icon: Activity,
-      color: 'bg-emerald-500 text-white',
-      path: '/status'
-    },
-    {
-      title: 'ข่าวประชาสัมพันธ์',
-      desc: 'ประกาศและข่าวสารล่าสุดจากเรา',
-      icon: Megaphone,
-      color: 'bg-amber-50 text-amber-500',
-      path: '/pr'
-    },
-    {
       title: 'บทความทางการแพทย์',
       desc: 'ความรู้ทางการแพทย์เกี่ยวกับการผ่าตัด',
       icon: BookOpen,
       color: 'bg-purple-50 text-purple-500',
       path: '/articles'
-    },
-    {
-      title: 'แบบประเมินความพึงพอใจ',
-      desc: 'ร่วมแสดงความคิดเห็นเพื่อพัฒนาการบริการ',
-      icon: ClipboardCheck,
-      color: 'bg-rose-50 text-rose-500',
-      path: '/survey'
     },
     {
       title: 'คำถามที่พบบ่อย (FAQ)',

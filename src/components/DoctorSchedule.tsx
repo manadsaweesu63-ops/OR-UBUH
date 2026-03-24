@@ -30,6 +30,8 @@ import {
 } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { subscribeToDoctorSchedules, DoctorSchedule as DoctorScheduleType, Holiday, subscribeToHolidays } from '../services/doctorService';
+import { getDoctorColor } from '../lib/doctorColors';
+import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
 
 // Clinic configurations with pastel colors
 const CLINICS = {
@@ -55,6 +57,7 @@ export default function DoctorSchedule() {
   const [selectedDoctor, setSelectedDoctor] = useState('ทั้งหมด');
   const [doctors, setDoctors] = useState<DoctorScheduleType[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
     const unsubscribeSchedules = subscribeToDoctorSchedules((data) => {
@@ -63,9 +66,13 @@ export default function DoctorSchedule() {
     const unsubscribeHolidays = subscribeToHolidays((data) => {
       setHolidays(data);
     });
+    const unsubscribeDoctors = subscribeToDoctors((data) => {
+      setAllDoctors(data);
+    });
     return () => {
       unsubscribeSchedules();
       unsubscribeHolidays();
+      unsubscribeDoctors();
     };
   }, []);
 
@@ -267,9 +274,9 @@ export default function DoctorSchedule() {
                     )}
                   </div>
                   
-                  <div className="flex flex-col gap-1 overflow-y-auto max-h-[100px] scrollbar-hide">
+                    <div className="flex flex-col gap-1 overflow-y-auto max-h-[100px] scrollbar-hide">
                     {events.map((event, eIdx) => {
-                      const clinicStyle = CLINICS[event.clinic as keyof typeof CLINICS] || { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' };
+                      const doctorColor = getDoctorColor(event.name);
                       return (
                         <motion.div 
                           key={eIdx}
@@ -277,9 +284,9 @@ export default function DoctorSchedule() {
                           animate={{ opacity: 1, scale: 1 }}
                           className={cn(
                             "text-[10px] p-1.5 rounded-lg border leading-tight shadow-sm",
-                            clinicStyle.bg,
-                            clinicStyle.text,
-                            clinicStyle.border
+                            doctorColor.bg,
+                            doctorColor.text,
+                            doctorColor.border
                           )}
                         >
                           <div className="font-bold truncate">{event.name}</div>
@@ -308,12 +315,15 @@ export default function DoctorSchedule() {
 
         {/* Legend */}
         <div className="mt-8 flex flex-wrap gap-4 justify-center">
-          {Object.entries(CLINICS).map(([name, style]) => (
-            <div key={name} className="flex items-center gap-2">
-              <div className={cn("w-3 h-3 rounded-full", style.bg, "border", style.border)} />
-              <span className="text-xs font-medium text-slate-500">{name}</span>
-            </div>
-          ))}
+          {allDoctors.map((doc) => {
+            const style = getDoctorColor(doc.name);
+            return (
+              <div key={doc.id} className="flex items-center gap-2">
+                <div className={cn("w-3 h-3 rounded-full", style.bg, "border", style.border)} />
+                <span className="text-xs font-medium text-slate-500">{doc.name}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

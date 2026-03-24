@@ -7,6 +7,7 @@ import {
   subscribeToSurgerySchedule
 } from '../services/surgeryService';
 import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
+import { getDoctorColor } from '../lib/doctorColors';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -47,37 +48,7 @@ import {
 import { th } from 'date-fns/locale';
 import { cn } from '../lib/utils';
 import StaffHeader from './StaffHeader';
-
-const DEFAULT_COLOR = { 
-  bg: 'bg-slate-50', 
-  text: 'text-slate-700', 
-  border: 'border-slate-200', 
-  bar: 'bg-slate-500',
-  shadow: 'shadow-slate-100'
-};
-
-const PASTEL_COLORS = [
-  { bg: 'bg-French lilac-50', text: 'text-blue-700', border: 'border-blue-200', bar: 'bg-blue-500', shadow: 'shadow-blue-100' },
-  { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', bar: 'bg-emerald-500', shadow: 'shadow-emerald-100' },
-  { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', bar: 'bg-amber-500', shadow: 'shadow-amber-100' },
-  { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', bar: 'bg-rose-500', shadow: 'shadow-rose-100' },
-  { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', bar: 'bg-indigo-500', shadow: 'shadow-indigo-100' },
-  { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', bar: 'bg-purple-500', shadow: 'shadow-purple-100' },
-  { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200', bar: 'bg-cyan-500', shadow: 'shadow-cyan-100' },
-  { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', bar: 'bg-orange-500', shadow: 'shadow-orange-100' },
-  { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200', bar: 'bg-teal-500', shadow: 'shadow-teal-100' },
-  { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', bar: 'bg-pink-500', shadow: 'shadow-pink-100' },
-];
-
-const getDoctorColor = (name: string) => {
-  if (!name || name === 'all') return DEFAULT_COLOR;
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % PASTEL_COLORS.length;
-  return PASTEL_COLORS[index];
-};
+import { isBefore, startOfDay } from 'date-fns';
 
 export default function SurgerySchedulePage() {
   const navigate = useNavigate();
@@ -140,6 +111,8 @@ export default function SurgerySchedulePage() {
     setEditForm({});
   };
 
+  const today = startOfDay(new Date());
+
   const formatPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, '');
     if (digits.length <= 3) return digits;
@@ -149,6 +122,11 @@ export default function SurgerySchedulePage() {
 
   const filteredSchedule = useMemo(() => {
     return surgeries.filter(s => {
+      const surgeryDate = parseISO(s.date);
+      
+      // Only show current and future surgeries in the main schedule
+      if (isBefore(startOfDay(surgeryDate), today)) return false;
+
       const matchesSearch = s.doctor.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            s.procedure.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            s.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,12 +134,11 @@ export default function SurgerySchedulePage() {
       const matchesDoctor = selectedDoctor === 'all' || s.doctor === selectedDoctor;
       
       // If searching, ignore month filter. Otherwise, show the entire month's schedule.
-      const surgeryDate = parseISO(s.date);
       const matchesMonth = searchTerm ? true : isSameMonth(surgeryDate, currentMonth);
       
       return matchesSearch && matchesDoctor && matchesMonth;
     }).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  }, [searchTerm, selectedDoctor, currentMonth, surgeries]);
+  }, [searchTerm, selectedDoctor, currentMonth, surgeries, today]);
 
   const calendarDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
@@ -172,8 +149,16 @@ export default function SurgerySchedulePage() {
   const getSurgeriesForDay = (day: Date) => {
     return surgeries.filter(s => {
       const surgeryDate = parseISO(s.date);
+      
+      // Only show current and future surgeries in the main schedule
+      if (isBefore(startOfDay(surgeryDate), today)) return false;
+
       const matchesDoctor = selectedDoctor === 'all' || s.doctor === selectedDoctor;
-      return isSameDay(surgeryDate, day) && matchesDoctor;
+      const matchesSearch = s.doctor.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                           s.procedure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           s.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           s.patientHN.toLowerCase().includes(searchTerm.toLowerCase());
+      return isSameDay(surgeryDate, day) && matchesDoctor && matchesSearch;
     });
   };
 
@@ -241,7 +226,7 @@ export default function SurgerySchedulePage() {
           </AnimatePresence>
 
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div className="flex flex-col gap-4">
               <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm w-fit">
               <button 
@@ -269,6 +254,13 @@ export default function SurgerySchedulePage() {
                 รายการ
               </button>
             </div>
+            <button 
+              onClick={() => navigate('/history')}
+              className="flex items-center gap-2 px-6 py-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all font-black text-sm w-fit"
+            >
+              <ArrowLeft className="w-4 h-4 rotate-180" />
+              ประวัติการผ่าตัดย้อนหลัง
+            </button>
           </div>
           
           <div className="flex flex-col md:flex-row items-center gap-4">

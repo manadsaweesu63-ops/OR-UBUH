@@ -30,6 +30,7 @@ import {
   setYear
 } from 'date-fns';
 import { th } from 'date-fns/locale';
+import { cn } from '../lib/utils';
 import { 
   addDoctorSchedule, 
   getDoctorSchedules, 
@@ -43,6 +44,7 @@ import {
   subscribeToHolidays
 } from '../services/doctorService';
 import { getDoctors, Doctor, subscribeToDoctors } from '../services/doctorListService';
+import { getDoctorColor } from '../lib/doctorColors';
 import StaffHeader from './StaffHeader';
 
 const CLINICS = [
@@ -286,56 +288,59 @@ export default function DoctorScheduleEntry() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {schedules.map(schedule => (
-                    <div key={schedule.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                            {schedule.clinic}
-                          </div>
-                          <div className="flex gap-2">
-                            <button onClick={() => handleEdit(schedule)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
-                              <ClipboardList className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => handleDelete(schedule.id)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-4">{schedule.name}</h3>
-                        <div className="space-y-2">
-                          {schedule.schedule.length > 0 && (
-                            <div className="mb-2">
-                              <p className="text-xs font-bold text-slate-400 mb-1">รายสัปดาห์:</p>
-                              {schedule.schedule.map((s, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm text-slate-500">
-                                  <Clock className="w-4 h-4 text-emerald-500" />
-                                  <span className="font-bold text-slate-700">{DAYS.find(d => d.id === s.day)?.label}:</span>
-                                  <span>{s.time}</span>
-                                </div>
-                              ))}
+                  {schedules.map(schedule => {
+                    const doctorColor = getDoctorColor(schedule.name);
+                    return (
+                      <div key={schedule.id} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start mb-4">
+                            <div className={cn("px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider", doctorColor.bg, doctorColor.text)}>
+                              {schedule.clinic}
                             </div>
-                          )}
-                          {schedule.specificDates && schedule.specificDates.length > 0 && (
-                            <div>
-                              <p className="text-xs font-bold text-slate-400 mb-1">ระบุวันที่ ({schedule.specificDates.length} วัน):</p>
-                              <div className="flex flex-wrap gap-1">
-                                {schedule.specificDates.slice(0, 3).map((d, i) => (
-                                  <span key={i} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-                                    {(() => {
-                                      const dateObj = parseISO(d.date);
-                                      return `${format(dateObj, 'd MMM', { locale: th })} ${dateObj.getFullYear() + 543}`;
-                                    })()}
-                                  </span>
+                            <div className="flex gap-2">
+                              <button onClick={() => handleEdit(schedule)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors">
+                                <ClipboardList className="w-5 h-5" />
+                              </button>
+                              <button onClick={() => handleDelete(schedule.id)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-800 mb-4">{schedule.name}</h3>
+                          <div className="space-y-2">
+                            {schedule.schedule.length > 0 && (
+                              <div className="mb-2">
+                                <p className="text-xs font-bold text-slate-400 mb-1">รายสัปดาห์:</p>
+                                {schedule.schedule.map((s, i) => (
+                                  <div key={i} className="flex items-center gap-2 text-sm text-slate-500">
+                                    <Clock className="w-4 h-4 text-emerald-500" />
+                                    <span className="font-bold text-slate-700">{DAYS.find(d => d.id === s.day)?.label}:</span>
+                                    <span>{s.time}</span>
+                                  </div>
                                 ))}
-                                {schedule.specificDates.length > 3 && <span className="text-[10px] text-slate-400">...</span>}
                               </div>
-                            </div>
-                          )}
+                            )}
+                            {schedule.specificDates && schedule.specificDates.length > 0 && (
+                              <div>
+                                <p className="text-xs font-bold text-slate-400 mb-1">ระบุวันที่ ({schedule.specificDates.length} วัน):</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {schedule.specificDates.slice(0, 3).map((d, i) => (
+                                    <span key={i} className="text-[10px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                                      {(() => {
+                                        const dateObj = parseISO(d.date);
+                                        return `${format(dateObj, 'd MMM', { locale: th })} ${dateObj.getFullYear() + 543}`;
+                                      })()}
+                                    </span>
+                                  ))}
+                                  {schedule.specificDates.length > 3 && <span className="text-[10px] text-slate-400">...</span>}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </motion.div>
